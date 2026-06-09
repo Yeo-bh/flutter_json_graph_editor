@@ -7,12 +7,12 @@ import '../state/editor_state.dart';
 import 'node_info_dialog.dart';
 
 // 그래프에서 하나의 JSON 객체/배열을 나타내는 카드 위젯
-// 탭 → 상세 다이얼로그, 헤더 버튼 → 자식 접기/펼치기
+// 헤더 클릭 → entries 접기/펼치기, 바디(entries 영역) 클릭 → 상세 다이얼로그
 class NodeCard extends StatelessWidget {
   final JsonNode node;
   final VoidCallback onToggleCollapse; // 헤더의 ‹/› 버튼 클릭 시 호출
-  final VoidCallback onToggleEntriesCollapse; // entries 접기/펼치기 버튼
-  final NodeCardStyle style; // 모든 시각적 옵션 (기본값 = NodeCardStyle.defaults)
+  final VoidCallback onToggleEntriesCollapse; // 헤더 클릭 시 호출
+  final NodeCardStyle style;
   final NodeInfoDialogStyle infoDialogStyle;
 
   const NodeCard({
@@ -35,17 +35,9 @@ class NodeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // GestureDetector로 카드 전체 탭 감지 → 상세 다이얼로그 표시
-    return GestureDetector(
-      onTap: () => _showInfo(context),
-      child: _buildCard(),
-    );
-  }
-
-  Widget _buildCard() {
     return Container(
       width: node.size.width,
-      height: node.size.height, // tree_layout에서 계산된 고정 높이
+      height: node.size.height,
       decoration: BoxDecoration(
         color: style.backgroundColor,
         borderRadius: BorderRadius.circular(style.borderRadius),
@@ -58,22 +50,35 @@ class NodeCard extends StatelessWidget {
           ),
         ],
       ),
-      // ClipRRect: 내부 위젯이 둥근 모서리를 넘어가지 않도록 클리핑
       child: ClipRRect(
         borderRadius: BorderRadius.circular(style.borderRadius),
         child: Column(
-          mainAxisSize: MainAxisSize.min, // 내용 높이에 맞게 (border 오버플로 방지)
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _Header(
               node: node,
               onToggle: onToggleCollapse,
-              onToggleEntries: onToggleEntriesCollapse,
+              onToggleEntries: node.entries.isNotEmpty
+                  ? onToggleEntriesCollapse
+                  : null,
               style: style,
             ),
-            // entries 접혀있으면 숨김
-            if (!node.isEntriesCollapsed)
-              ...node.entries.map((e) => _EntryRow(entry: e, style: style)),
+            // 펼쳐진 entries 영역 클릭 → 상세 다이얼로그
+            if (!node.isEntriesCollapsed && node.entries.isNotEmpty)
+              GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => _showInfo(context),
+                child: MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: node.entries
+                        .map((e) => _EntryRow(entry: e, style: style))
+                        .toList(),
+                  ),
+                ),
+              ),
           ],
         ),
       ),
@@ -81,11 +86,12 @@ class NodeCard extends StatelessWidget {
   }
 }
 
-// 카드 상단 헤더: 타입 뱃지 + 라벨 + entries 토글 + 자식 접기/펼치기 버튼
+// 카드 상단 헤더: 타입 뱃지 + 라벨 + 자식 접기/펼치기 버튼
+// onToggleEntries가 있으면 헤더 전체 클릭 → entries 접기/펼치기
 class _Header extends StatelessWidget {
   final JsonNode node;
   final VoidCallback onToggle;
-  final VoidCallback onToggleEntries;
+  final VoidCallback? onToggleEntries; // null이면 헤더 클릭 비활성
   final NodeCardStyle style;
 
   const _Header({
@@ -98,7 +104,7 @@ class _Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hasChildren = node.children.isNotEmpty;
-    return Container(
+    final inner = Container(
       height: style.headerHeight,
       padding: EdgeInsets.symmetric(horizontal: style.headerPaddingHorizontal),
       color: style.headerBackgroundColor,
@@ -135,28 +141,6 @@ class _Header extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          // entries가 있을 때 접기/펼치기 버튼 표시
-          if (node.entries.isNotEmpty)
-            GestureDetector(
-              onTap: onToggleEntries,
-              child: Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  color: style.collapseIconBackgroundColor,
-                  borderRadius: BorderRadius.circular(
-                    style.collapseIconBorderRadius,
-                  ),
-                ),
-                child: Icon(
-                  node.isEntriesCollapsed
-                      ? Icons.expand_more
-                      : Icons.expand_less,
-                  size: style.collapseIconSize,
-                  color: style.collapseIconColor,
-                ),
-              ),
-            ),
-          if (node.entries.isNotEmpty && hasChildren) const SizedBox(width: 4),
           // 자식이 있을 때만 접기/펼치기 버튼 표시
           if (hasChildren)
             GestureDetector(
@@ -170,7 +154,6 @@ class _Header extends StatelessWidget {
                   ),
                 ),
                 child: Icon(
-                  // 접힘: 오른쪽 화살표(펼치기 암시), 펼침: 왼쪽 화살표(접기 암시)
                   node.isCollapsed ? Icons.chevron_right : Icons.chevron_left,
                   size: style.collapseIconSize,
                   color: style.collapseIconColor,
@@ -178,6 +161,16 @@ class _Header extends StatelessWidget {
               ),
             ),
         ],
+      ),
+    );
+
+    if (onToggleEntries == null) return inner;
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onToggleEntries,
+        child: inner,
       ),
     );
   }
