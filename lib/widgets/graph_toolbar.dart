@@ -1,0 +1,149 @@
+import 'package:flutter/material.dart';
+import '../models/graph_toolbar_style.dart';
+
+// 툴바에 추가할 버튼 하나를 정의하는 데이터 클래스
+// onTap에 BuildContext를 전달하므로 Provider 등 위젯 트리 접근 가능
+class GraphToolbarAction {
+  final IconData icon;
+  final String tooltip;
+
+  /// 버튼 클릭 시 호출. context로 Provider 값 읽기 등 자유롭게 사용 가능
+  /// 예: (ctx) => ctx.read`<EditorState>`().jsonText
+  final void Function(BuildContext context) onTap;
+
+  const GraphToolbarAction({
+    required this.icon,
+    required this.tooltip,
+    required this.onTap,
+  });
+}
+
+// 그래프 패널 하단 툴바
+// 기본 줌 버튼(fit / - / +) 고정 + extraActions로 버튼 자유 추가
+class GraphToolbar extends StatelessWidget {
+  final VoidCallback onZoomIn;
+  final VoidCallback onZoomOut;
+  final VoidCallback onFit;
+
+  /// 사용자 정의 버튼 목록. 기본 줌 버튼 오른쪽에 구분선과 함께 추가됨
+  final List<GraphToolbarAction> extraActions;
+
+  final GraphToolbarStyle style;
+
+  const GraphToolbar({
+    super.key,
+    required this.onZoomIn,
+    required this.onZoomOut,
+    required this.onFit,
+    this.extraActions = const [],
+    this.style = const GraphToolbarStyle(),
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: style.containerPadding,
+      decoration: BoxDecoration(
+        color: style.backgroundColor,
+        borderRadius: BorderRadius.circular(style.borderRadius),
+        boxShadow: [
+          BoxShadow(
+            color: style.shadowColor,
+            blurRadius: style.shadowBlurRadius,
+            offset: style.shadowOffset,
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _ToolbarBtn(
+            icon: Icons.fit_screen_outlined,
+            tooltip: 'Fit to view',
+            onTap: onFit,
+            iconColor: style.iconColor,
+            iconSize: style.iconSize,
+            buttonPadding: style.buttonPadding,
+            borderRadius: style.borderRadius,
+          ),
+          _vDivider(),
+          _ToolbarBtn(
+            icon: Icons.remove,
+            tooltip: 'Zoom out',
+            onTap: onZoomOut,
+            iconColor: style.iconColor,
+            iconSize: style.iconSize,
+            buttonPadding: style.buttonPadding,
+            borderRadius: style.borderRadius,
+          ),
+          _ToolbarBtn(
+            icon: Icons.add,
+            tooltip: 'Zoom in',
+            onTap: onZoomIn,
+            iconColor: style.iconColor,
+            iconSize: style.iconSize,
+            buttonPadding: style.buttonPadding,
+            borderRadius: style.borderRadius,
+          ),
+          // 사용자 정의 버튼이 있으면 구분선 + 버튼 목록 추가
+          if (extraActions.isNotEmpty) ...[
+            _vDivider(),
+            ...extraActions.map(
+              (a) => _ToolbarBtn(
+                icon: a.icon,
+                tooltip: a.tooltip,
+                onTap: () => a.onTap(context),
+                iconColor: style.iconColor,
+                iconSize: style.iconSize,
+                buttonPadding: style.buttonPadding,
+                borderRadius: style.borderRadius,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _vDivider() => Container(
+    width: 1,
+    height: style.dividerHeight,
+    margin: EdgeInsets.symmetric(horizontal: style.dividerMarginHorizontal),
+    color: style.dividerColor,
+  );
+}
+
+class _ToolbarBtn extends StatelessWidget {
+  final IconData icon;
+  final String tooltip;
+  final VoidCallback onTap;
+  final Color iconColor;
+  final double iconSize;
+  final double buttonPadding;
+  final double borderRadius;
+
+  const _ToolbarBtn({
+    required this.icon,
+    required this.tooltip,
+    required this.onTap,
+    required this.iconColor,
+    required this.iconSize,
+    required this.buttonPadding,
+    required this.borderRadius,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: tooltip,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(borderRadius),
+        onTap: onTap,
+        child: Padding(
+          padding: EdgeInsets.all(buttonPadding),
+          child: Icon(icon, size: iconSize, color: iconColor),
+        ),
+      ),
+    );
+  }
+}

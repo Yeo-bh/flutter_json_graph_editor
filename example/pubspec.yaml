@@ -1,0 +1,18 @@
+name: json_editor_example
+description: Example app for json_editor package
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.10.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  provider: ^6.1.5+1
+  json_graph_editor:
+    path: ../
+
+flutter:
+  uses-material-design: true
