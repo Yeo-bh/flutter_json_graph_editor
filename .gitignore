@@ -48,3 +48,4 @@ app.*.map.json
 /web/
 .metadata
 devtools_options.yaml
+/example/build
