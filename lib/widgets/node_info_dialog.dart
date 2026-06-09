@@ -139,7 +139,9 @@ class _NodeInfoDialogState extends State<NodeInfoDialog> {
             padding: widget.style.headerBadgePadding,
             decoration: BoxDecoration(
               color: widget.style.headerBadgeBackgroundColor,
-              borderRadius: BorderRadius.circular(widget.style.headerBadgeBorderRadius),
+              borderRadius: BorderRadius.circular(
+                widget.style.headerBadgeBorderRadius,
+              ),
             ),
             child: Text(
               node.isArray ? '[ ]' : '{ }',
@@ -164,7 +166,11 @@ class _NodeInfoDialogState extends State<NodeInfoDialog> {
           ),
           IconButton(
             onPressed: () => Navigator.of(context).pop(),
-            icon: Icon(Icons.close, size: widget.style.closeIconSize, color: widget.style.closeIconColor),
+            icon: Icon(
+              Icons.close,
+              size: widget.style.closeIconSize,
+              color: widget.style.closeIconColor,
+            ),
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(),
           ),
@@ -245,7 +251,9 @@ class _NodeInfoDialogState extends State<NodeInfoDialog> {
             ),
           ),
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: widget.style.entrySeparatorPaddingHorizontal),
+            padding: EdgeInsets.symmetric(
+              horizontal: widget.style.entrySeparatorPaddingHorizontal,
+            ),
             child: Text(
               ':',
               style: TextStyle(
@@ -269,10 +277,14 @@ class _NodeInfoDialogState extends State<NodeInfoDialog> {
                       contentPadding: EdgeInsets.zero,
                       border: InputBorder.none,
                       enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: widget.style.dividerColor),
+                        borderSide: BorderSide(
+                          color: widget.style.dividerColor,
+                        ),
                       ),
                       focusedBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: widget.style.headerBadgeTextColor),
+                        borderSide: BorderSide(
+                          color: widget.style.headerBadgeTextColor,
+                        ),
                       ),
                     ),
                     onSubmitted: (_) => _saveEdit(entry),
@@ -292,7 +304,9 @@ class _NodeInfoDialogState extends State<NodeInfoDialog> {
               padding: widget.style.typeBadgePadding,
               decoration: BoxDecoration(
                 color: widget.style.typeBadgeBackgroundColor,
-                borderRadius: BorderRadius.circular(widget.style.typeBadgeBorderRadius),
+                borderRadius: BorderRadius.circular(
+                  widget.style.typeBadgeBorderRadius,
+                ),
               ),
               child: Text(
                 entry.type.name,

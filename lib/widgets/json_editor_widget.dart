@@ -44,6 +44,7 @@ class JsonEditorWidget extends StatelessWidget {
           edgeStyle: style.edge,
           nodeCardStyle: style.nodeCard,
           nodeInfoDialogStyle: style.nodeInfoDialog,
+          addChildDialogStyle: style.addChildDialog,
           extraActions: extraActions,
         ),
       ),

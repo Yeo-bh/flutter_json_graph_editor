@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../models/add_child_dialog_style.dart';
 import '../models/edge_style.dart';
 import '../models/graph_panel_style.dart';
 import '../models/graph_toolbar_style.dart';
@@ -8,6 +9,7 @@ import '../models/node_card_style.dart';
 import '../models/node_info_dialog_style.dart';
 import '../state/editor_state.dart';
 import '../utils/graph_transform.dart';
+import 'add_child_dialog.dart';
 import 'edge_painter.dart';
 import 'graph_toolbar.dart';
 import 'node_card.dart';
@@ -19,6 +21,7 @@ class GraphPanel extends StatefulWidget {
   final EdgeStyle edgeStyle;
   final NodeCardStyle nodeCardStyle;
   final NodeInfoDialogStyle nodeInfoDialogStyle;
+  final AddChildDialogStyle addChildDialogStyle;
 
   /// 툴바에 추가할 사용자 정의 버튼 목록
   /// 예: save, export, share 등 원하는 기능을 GraphToolbarAction으로 정의해서 전달
@@ -31,6 +34,7 @@ class GraphPanel extends StatefulWidget {
     this.edgeStyle = const EdgeStyle(),
     this.nodeCardStyle = const NodeCardStyle(),
     this.nodeInfoDialogStyle = const NodeInfoDialogStyle(),
+    this.addChildDialogStyle = const AddChildDialogStyle(),
     this.extraActions = const [],
   });
 
@@ -122,6 +126,7 @@ class _GraphPanelState extends State<GraphPanel> {
                   edgeStyle: widget.edgeStyle,
                   nodeCardStyle: widget.nodeCardStyle,
                   nodeInfoDialogStyle: widget.nodeInfoDialogStyle,
+                  addChildDialogStyle: widget.addChildDialogStyle,
                 );
               },
             ),
@@ -206,6 +211,7 @@ class _GraphView extends StatelessWidget {
   final EdgeStyle edgeStyle;
   final NodeCardStyle nodeCardStyle;
   final NodeInfoDialogStyle nodeInfoDialogStyle;
+  final AddChildDialogStyle addChildDialogStyle;
 
   const _GraphView({
     required this.root,
@@ -214,6 +220,7 @@ class _GraphView extends StatelessWidget {
     required this.edgeStyle,
     required this.nodeCardStyle,
     required this.nodeInfoDialogStyle,
+    required this.addChildDialogStyle,
   });
 
   @override
@@ -255,12 +262,27 @@ class _GraphView extends StatelessWidget {
       Positioned(
         left: node.position.dx,
         top: node.position.dy,
-        child: NodeCard(
-          node: node,
-          onToggleCollapse: () => state.toggleCollapse(node.id),
-          onToggleEntriesCollapse: () => state.toggleEntriesCollapse(node.id),
-          style: nodeCardStyle,
-          infoDialogStyle: nodeInfoDialogStyle,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            NodeCard(
+              node: node,
+              onToggleCollapse: () => state.toggleCollapse(node.id),
+              onToggleEntriesCollapse: () =>
+                  state.toggleEntriesCollapse(node.id),
+              style: nodeCardStyle,
+              infoDialogStyle: nodeInfoDialogStyle,
+            ),
+            const SizedBox(width: 8),
+            _AddButton(
+              node: node,
+              state: state,
+              cardStyle: nodeCardStyle,
+              dialogStyle: addChildDialogStyle,
+            ),
+          ],
         ),
       ),
     );
@@ -269,5 +291,53 @@ class _GraphView extends StatelessWidget {
         _collect(child, result);
       }
     }
+  }
+}
+
+class _AddButton extends StatelessWidget {
+  final JsonNode node;
+  final EditorState state;
+  final NodeCardStyle cardStyle;
+  final AddChildDialogStyle dialogStyle;
+
+  const _AddButton({
+    required this.node,
+    required this.state,
+    required this.cardStyle,
+    required this.dialogStyle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.center,
+      child: GestureDetector(
+        onTap: () => showDialog(
+          context: context,
+          builder: (_) => AddChildDialog(
+            parentNode: node,
+            state: state,
+            style: dialogStyle,
+          ),
+        ),
+        child: Container(
+          width: cardStyle.addButtonSize,
+          height: cardStyle.addButtonSize,
+          decoration: BoxDecoration(
+            color: cardStyle.addButtonBackgroundColor,
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: cardStyle.addButtonColor,
+              width: cardStyle.addButtonBorderWidth,
+            ),
+          ),
+          child: Icon(
+            Icons.add,
+            size: cardStyle.addButtonIconSize,
+            color: cardStyle.addButtonColor,
+          ),
+        ),
+      ),
+    );
   }
 }

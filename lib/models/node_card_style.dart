@@ -135,6 +135,23 @@ class NodeCardStyle {
   /// 코드 가독성을 위해 monospace 계열 권장.
   final String fontFamily;
 
+  // ── + 버튼 ──────────────────────────────────────────────
+
+  /// + 버튼 아이콘 및 테두리 색.
+  final Color addButtonColor;
+
+  /// + 버튼 배경색.
+  final Color addButtonBackgroundColor;
+
+  /// + 버튼 크기(px, 지름).
+  final double addButtonSize;
+
+  /// + 버튼 아이콘 크기(px).
+  final double addButtonIconSize;
+
+  /// + 버튼 테두리 두께(px).
+  final double addButtonBorderWidth;
+
   const NodeCardStyle({
     this.width = 210.0,
     this.headerHeight = 40.0,
@@ -172,6 +189,11 @@ class NodeCardStyle {
     this.booleanValueColor = const Color(0xFF6F42C1),
     this.nullValueColor = const Color(0xFF6A737D),
     this.fontFamily = 'monospace',
+    this.addButtonColor = const Color(0xFF0366D6),
+    this.addButtonBackgroundColor = const Color(0xFFF1F8FF),
+    this.addButtonSize = 26.0,
+    this.addButtonIconSize = 14.0,
+    this.addButtonBorderWidth = 1.5,
   });
 
   /// 기본 라이트 테마 스타일
@@ -215,6 +237,11 @@ class NodeCardStyle {
     Color? booleanValueColor,
     Color? nullValueColor,
     String? fontFamily,
+    Color? addButtonColor,
+    Color? addButtonBackgroundColor,
+    double? addButtonSize,
+    double? addButtonIconSize,
+    double? addButtonBorderWidth,
   }) {
     return NodeCardStyle(
       width: width ?? this.width,
@@ -253,6 +280,11 @@ class NodeCardStyle {
       booleanValueColor: booleanValueColor ?? this.booleanValueColor,
       nullValueColor: nullValueColor ?? this.nullValueColor,
       fontFamily: fontFamily ?? this.fontFamily,
+      addButtonColor: addButtonColor ?? this.addButtonColor,
+      addButtonBackgroundColor: addButtonBackgroundColor ?? this.addButtonBackgroundColor,
+      addButtonSize: addButtonSize ?? this.addButtonSize,
+      addButtonIconSize: addButtonIconSize ?? this.addButtonIconSize,
+      addButtonBorderWidth: addButtonBorderWidth ?? this.addButtonBorderWidth,
     );
   }
 }

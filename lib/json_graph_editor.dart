@@ -8,6 +8,7 @@ export 'widgets/graph_toolbar.dart' show GraphToolbarAction;
 
 // 스타일 모델
 export 'models/json_editor_style.dart';
+export 'models/add_child_dialog_style.dart';
 export 'models/editor_panel_style.dart';
 export 'models/graph_panel_style.dart';
 export 'models/graph_toolbar_style.dart';
@@ -21,3 +22,7 @@ export 'state/editor_state.dart';
 
 // 파싱된 트리 모델
 export 'models/json_node.dart';
+
+// 타입 열거형
+export 'models/child_node_type.dart';
+export 'models/primitive_entry_type.dart';

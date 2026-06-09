@@ -63,6 +63,25 @@ class EditorState extends ChangeNotifier {
     }
   }
 
+  // 노드 경로에 새 key-value 추가 (primitive → entry, object/array → child 노드)
+  // key가 null이면 배열에 append
+  void addChildToNode(List<String> nodePath, String? key, dynamic defaultValue) {
+    try {
+      final dynamic decoded = jsonDecode(_jsonText);
+      dynamic current = decoded;
+      for (final k in nodePath) {
+        current = current is List ? current[int.parse(k)] : current[k];
+      }
+      if (current is Map) {
+        current[key!] = defaultValue;
+      } else if (current is List) {
+        current.add(defaultValue);
+      }
+      final newText = const JsonEncoder.withIndent('  ').convert(decoded);
+      updateText(newText);
+    } catch (_) {}
+  }
+
   // 카드 내부 entries 접기/펼치기
   void toggleEntriesCollapse(String nodeId) {
     if (_rootNode == null) return;

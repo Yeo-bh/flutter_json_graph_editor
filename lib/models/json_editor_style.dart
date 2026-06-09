@@ -1,3 +1,4 @@
+import 'add_child_dialog_style.dart';
 import 'edge_style.dart';
 import 'editor_panel_style.dart';
 import 'graph_panel_style.dart';
@@ -30,6 +31,9 @@ class JsonEditorStyle {
   /// 좌측 JSON 코드 에디터 패널 스타일.
   final EditorPanelStyle editorPanel;
 
+  /// 자식 추가 다이얼로그 스타일.
+  final AddChildDialogStyle addChildDialog;
+
   /// true면 파싱 시 root 제외 모든 자식 노드를 접힌 상태로 초기화.
   final bool collapseChildrenByDefault;
 
@@ -44,15 +48,17 @@ class JsonEditorStyle {
     GraphToolbarStyle? graphToolbar,
     SplitViewStyle? splitView,
     EditorPanelStyle? editorPanel,
+    AddChildDialogStyle? addChildDialog,
     this.collapseChildrenByDefault = true,
     this.collapseEntriesByDefault = true,
-  })  : nodeCard = nodeCard ?? const NodeCardStyle(),
-        nodeInfoDialog = nodeInfoDialog ?? const NodeInfoDialogStyle(),
-        edge = edge ?? const EdgeStyle(),
-        graphPanel = graphPanel ?? const GraphPanelStyle(),
-        graphToolbar = graphToolbar ?? const GraphToolbarStyle(),
-        splitView = splitView ?? const SplitViewStyle(),
-        editorPanel = editorPanel ?? EditorPanelStyle();
+  }) : nodeCard = nodeCard ?? const NodeCardStyle(),
+       nodeInfoDialog = nodeInfoDialog ?? const NodeInfoDialogStyle(),
+       edge = edge ?? const EdgeStyle(),
+       graphPanel = graphPanel ?? const GraphPanelStyle(),
+       graphToolbar = graphToolbar ?? const GraphToolbarStyle(),
+       splitView = splitView ?? const SplitViewStyle(),
+       editorPanel = editorPanel ?? EditorPanelStyle(),
+       addChildDialog = addChildDialog ?? const AddChildDialogStyle();
 
   JsonEditorStyle copyWith({
     NodeCardStyle? nodeCard,
@@ -62,6 +68,7 @@ class JsonEditorStyle {
     GraphToolbarStyle? graphToolbar,
     SplitViewStyle? splitView,
     EditorPanelStyle? editorPanel,
+    AddChildDialogStyle? addChildDialog,
     bool? collapseChildrenByDefault,
     bool? collapseEntriesByDefault,
   }) {
@@ -73,8 +80,11 @@ class JsonEditorStyle {
       graphToolbar: graphToolbar ?? this.graphToolbar,
       splitView: splitView ?? this.splitView,
       editorPanel: editorPanel ?? this.editorPanel,
-      collapseChildrenByDefault: collapseChildrenByDefault ?? this.collapseChildrenByDefault,
-      collapseEntriesByDefault: collapseEntriesByDefault ?? this.collapseEntriesByDefault,
+      addChildDialog: addChildDialog ?? this.addChildDialog,
+      collapseChildrenByDefault:
+          collapseChildrenByDefault ?? this.collapseChildrenByDefault,
+      collapseEntriesByDefault:
+          collapseEntriesByDefault ?? this.collapseEntriesByDefault,
     );
   }
 }
