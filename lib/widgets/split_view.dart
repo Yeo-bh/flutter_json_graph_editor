@@ -16,16 +16,32 @@ class SplitView extends StatefulWidget {
   });
 
   @override
-  State<SplitView> createState() => _SplitViewState();
+  State<SplitView> createState() => SplitViewState();
 }
 
-class _SplitViewState extends State<SplitView> {
+class SplitViewState extends State<SplitView> {
   late double _ratio;
+  double _savedRatio = 0.35;
+  bool _isCollapsed = false;
 
   @override
   void initState() {
     super.initState();
     _ratio = widget.initialRatio;
+    _savedRatio = widget.initialRatio;
+  }
+
+  void toggle() {
+    setState(() {
+      if (_isCollapsed) {
+        _ratio = _savedRatio;
+        _isCollapsed = false;
+      } else {
+        _savedRatio = _ratio;
+        _ratio = 0;
+        _isCollapsed = true;
+      }
+    });
   }
 
   @override
@@ -38,18 +54,22 @@ class _SplitViewState extends State<SplitView> {
 
         return Row(
           children: [
-            SizedBox(width: leftW, child: widget.left),
+            if (!_isCollapsed) SizedBox(width: leftW, child: widget.left),
             GestureDetector(
-              onHorizontalDragUpdate: (d) {
-                setState(() {
-                  _ratio = (_ratio + d.delta.dx / total).clamp(
-                    widget.style.minRatio,
-                    widget.style.maxRatio,
-                  );
-                });
-              },
+              onHorizontalDragUpdate: _isCollapsed
+                  ? null
+                  : (d) {
+                      setState(() {
+                        _ratio = (_ratio + d.delta.dx / total).clamp(
+                          widget.style.minRatio,
+                          widget.style.maxRatio,
+                        );
+                      });
+                    },
               child: MouseRegion(
-                cursor: SystemMouseCursors.resizeColumn,
+                cursor: _isCollapsed
+                    ? SystemMouseCursors.basic
+                    : SystemMouseCursors.resizeColumn,
                 child: Container(
                   width: widget.style.dividerWidth,
                   color: widget.style.dividerColor,

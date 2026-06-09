@@ -25,6 +25,9 @@ class GraphToolbar extends StatelessWidget {
   final VoidCallback onZoomOut;
   final VoidCallback onFit;
 
+  /// 에디터 패널 접기/펼치기 콜백. null이면 버튼 미표시.
+  final VoidCallback? onToggleEditorPanel;
+
   /// 사용자 정의 버튼 목록. 기본 줌 버튼 오른쪽에 구분선과 함께 추가됨
   final List<GraphToolbarAction> extraActions;
 
@@ -35,6 +38,7 @@ class GraphToolbar extends StatelessWidget {
     required this.onZoomIn,
     required this.onZoomOut,
     required this.onFit,
+    this.onToggleEditorPanel,
     this.extraActions = const [],
     this.style = const GraphToolbarStyle(),
   });
@@ -57,6 +61,19 @@ class GraphToolbar extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
+          // 에디터 패널 토글 버튼 (콜백이 있을 때만 표시)
+          if (onToggleEditorPanel != null) ...[
+            _ToolbarBtn(
+              icon: Icons.view_sidebar_outlined,
+              tooltip: 'Toggle editor panel',
+              onTap: onToggleEditorPanel!,
+              iconColor: style.iconColor,
+              iconSize: style.iconSize,
+              buttonPadding: style.buttonPadding,
+              borderRadius: style.borderRadius,
+            ),
+            _vDivider(),
+          ],
           _ToolbarBtn(
             icon: Icons.fit_screen_outlined,
             tooltip: 'Fit to view',

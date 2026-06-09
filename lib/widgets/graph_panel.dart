@@ -23,6 +23,9 @@ class GraphPanel extends StatefulWidget {
   final NodeInfoDialogStyle nodeInfoDialogStyle;
   final AddChildDialogStyle addChildDialogStyle;
 
+  /// 에디터 패널 접기/펼치기 콜백. null이면 툴바 버튼 미표시.
+  final VoidCallback? onToggleEditorPanel;
+
   /// 툴바에 추가할 사용자 정의 버튼 목록
   /// 예: save, export, share 등 원하는 기능을 GraphToolbarAction으로 정의해서 전달
   final List<GraphToolbarAction> extraActions;
@@ -35,6 +38,7 @@ class GraphPanel extends StatefulWidget {
     this.nodeCardStyle = const NodeCardStyle(),
     this.nodeInfoDialogStyle = const NodeInfoDialogStyle(),
     this.addChildDialogStyle = const AddChildDialogStyle(),
+    this.onToggleEditorPanel,
     this.extraActions = const [],
   });
 
@@ -143,6 +147,7 @@ class _GraphPanelState extends State<GraphPanel> {
                     viewport,
                     context.read<EditorState>().rootNode,
                   ),
+                  onToggleEditorPanel: widget.onToggleEditorPanel,
                   extraActions: widget.extraActions,
                   style: widget.toolbarStyle,
                 ),

@@ -10,7 +10,7 @@ import 'split_view.dart';
 /// JSON 에디터 패키지의 최상위 위젯.
 /// [style]로 전체 테마를 한 번에 제어하고,
 /// [extraActions]로 툴바에 버튼을 추가할 수 있다.
-class JsonEditorWidget extends StatelessWidget {
+class JsonEditorWidget extends StatefulWidget {
   /// 에디터 전체 시각적 스타일. 기본값은 라이트 테마.
   final JsonEditorStyle style;
 
@@ -28,24 +28,33 @@ class JsonEditorWidget extends StatelessWidget {
   }) : style = style ?? JsonEditorStyle();
 
   @override
+  State<JsonEditorWidget> createState() => _JsonEditorWidgetState();
+}
+
+class _JsonEditorWidgetState extends State<JsonEditorWidget> {
+  final _splitViewKey = GlobalKey<SplitViewState>();
+
+  @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => EditorState(
-        initialJson: initialJson,
-        collapseChildrenByDefault: style.collapseChildrenByDefault,
-        collapseEntriesByDefault: style.collapseEntriesByDefault,
+        initialJson: widget.initialJson,
+        collapseChildrenByDefault: widget.style.collapseChildrenByDefault,
+        collapseEntriesByDefault: widget.style.collapseEntriesByDefault,
       ),
       child: SplitView(
-        style: style.splitView,
-        left: EditorPanel(style: style.editorPanel),
+        key: _splitViewKey,
+        style: widget.style.splitView,
+        left: EditorPanel(style: widget.style.editorPanel),
         right: GraphPanel(
-          style: style.graphPanel,
-          toolbarStyle: style.graphToolbar,
-          edgeStyle: style.edge,
-          nodeCardStyle: style.nodeCard,
-          nodeInfoDialogStyle: style.nodeInfoDialog,
-          addChildDialogStyle: style.addChildDialog,
-          extraActions: extraActions,
+          style: widget.style.graphPanel,
+          toolbarStyle: widget.style.graphToolbar,
+          edgeStyle: widget.style.edge,
+          nodeCardStyle: widget.style.nodeCard,
+          nodeInfoDialogStyle: widget.style.nodeInfoDialog,
+          addChildDialogStyle: widget.style.addChildDialog,
+          onToggleEditorPanel: () => _splitViewKey.currentState?.toggle(),
+          extraActions: widget.extraActions,
         ),
       ),
     );
