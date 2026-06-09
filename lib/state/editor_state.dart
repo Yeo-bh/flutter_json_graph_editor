@@ -65,7 +65,11 @@ class EditorState extends ChangeNotifier {
 
   // 노드 경로에 새 key-value 추가 (primitive → entry, object/array → child 노드)
   // key가 null이면 배열에 append
-  void addChildToNode(List<String> nodePath, String? key, dynamic defaultValue) {
+  void addChildToNode(
+    List<String> nodePath,
+    String? key,
+    dynamic defaultValue,
+  ) {
     try {
       final dynamic decoded = jsonDecode(_jsonText);
       dynamic current = decoded;
@@ -97,7 +101,11 @@ class EditorState extends ChangeNotifier {
   // nodePath: 루트에서 해당 노드까지의 경로 (JsonNode.path)
   // navigationKey: 수정할 entry의 실제 키 (NodeEntry.navigationKey)
   // newValue: 새 값 (null/bool/num/String 중 하나)
-  void updateEntryAtPath(List<String> nodePath, String navigationKey, dynamic newValue) {
+  void updateEntryAtPath(
+    List<String> nodePath,
+    String navigationKey,
+    dynamic newValue,
+  ) {
     try {
       final dynamic decoded = jsonDecode(_jsonText);
       // 경로를 따라 대상 객체/배열까지 탐색
@@ -125,15 +133,59 @@ class EditorState extends ChangeNotifier {
       _error = null;
       return;
     }
+
+    // 재파싱 전 사용자가 변경한 collapse 상태를 path 키로 스냅샷
+    final snapshot = <String, ({bool isCollapsed, bool isEntriesCollapsed})>{};
+    if (_rootNode != null) _snapshotCollapse(_rootNode!, snapshot);
+
     final node = parseJson(text);
     if (node != null) {
-      if (collapseChildrenByDefault) _collapseChildren(node);
-      if (collapseEntriesByDefault) _collapseAllEntries(node);
+      if (snapshot.isEmpty) {
+        // 최초 파싱: 기본값 적용
+        if (collapseChildrenByDefault) _collapseChildren(node);
+        if (collapseEntriesByDefault) _collapseAllEntries(node);
+      } else {
+        // 재파싱: 기존 노드는 저장 상태 복원, 신규 노드만 기본값 적용
+        _restoreCollapse(node, snapshot, isRoot: true);
+      }
       _rootNode = node;
-      layoutTree(node); // 파싱 성공 시 즉시 레이아웃 계산
+      layoutTree(node);
       _error = null;
     } else {
-      _error = 'Invalid JSON'; // 파싱 실패 → 이전 그래프 유지, 에러만 표시
+      _error = 'Invalid JSON';
+    }
+  }
+
+  // 트리 전체의 collapse 상태를 path → 상태 맵으로 저장
+  void _snapshotCollapse(
+    JsonNode node,
+    Map<String, ({bool isCollapsed, bool isEntriesCollapsed})> snapshot,
+  ) {
+    snapshot[node.path.join('/')] = (
+      isCollapsed: node.isCollapsed,
+      isEntriesCollapsed: node.isEntriesCollapsed,
+    );
+    for (final child in node.children) {
+      _snapshotCollapse(child, snapshot);
+    }
+  }
+
+  // 스냅샷에 있는 노드는 상태 복원, 신규 노드는 기본값 적용
+  void _restoreCollapse(
+    JsonNode node,
+    Map<String, ({bool isCollapsed, bool isEntriesCollapsed})> snapshot, {
+    required bool isRoot,
+  }) {
+    final saved = snapshot[node.path.join('/')];
+    if (saved != null) {
+      node.isCollapsed = saved.isCollapsed;
+      node.isEntriesCollapsed = saved.isEntriesCollapsed;
+    } else if (!isRoot) {
+      if (collapseChildrenByDefault) node.isCollapsed = true;
+      if (collapseEntriesByDefault) node.isEntriesCollapsed = true;
+    }
+    for (final child in node.children) {
+      _restoreCollapse(child, snapshot, isRoot: false);
     }
   }
 
