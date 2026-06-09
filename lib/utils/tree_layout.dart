@@ -10,8 +10,11 @@ const double kVGap = 16.0; // 형제 카드 사이 세로 간격
 const double kNodeWidth = 210.0;
 
 // 카드 자체의 픽셀 높이 (헤더 + entry 줄 수 * 줄 높이 + 상하 테두리)
-double nodeHeight(JsonNode node, [NodeCardStyle style = const NodeCardStyle()]) =>
-    style.headerHeight + node.entries.length * style.entryHeight + style.borderWidth * 2;
+// entries가 접혀있으면 헤더 높이만 사용
+double nodeHeight(JsonNode node, [NodeCardStyle style = const NodeCardStyle()]) {
+  final entryRows = node.isEntriesCollapsed ? 0 : node.entries.length;
+  return style.headerHeight + entryRows * style.entryHeight + style.borderWidth * 2;
+}
 
 // 해당 노드의 서브트리 전체가 차지하는 세로 높이
 // (펼쳐진 자식들을 포함한 총 높이, 레이아웃 계산에 사용)

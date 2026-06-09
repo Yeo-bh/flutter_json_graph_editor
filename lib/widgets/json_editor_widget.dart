@@ -30,7 +30,11 @@ class JsonEditorWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => EditorState(initialJson: initialJson),
+      create: (_) => EditorState(
+        initialJson: initialJson,
+        collapseChildrenByDefault: style.collapseChildrenByDefault,
+        collapseEntriesByDefault: style.collapseEntriesByDefault,
+      ),
       child: SplitView(
         style: style.splitView,
         left: EditorPanel(style: style.editorPanel),

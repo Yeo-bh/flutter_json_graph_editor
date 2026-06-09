@@ -30,6 +30,12 @@ class JsonEditorStyle {
   /// 좌측 JSON 코드 에디터 패널 스타일.
   final EditorPanelStyle editorPanel;
 
+  /// true면 파싱 시 root 제외 모든 자식 노드를 접힌 상태로 초기화.
+  final bool collapseChildrenByDefault;
+
+  /// true면 파싱 시 root 제외 모든 노드의 entries를 접힌 상태로 초기화.
+  final bool collapseEntriesByDefault;
+
   JsonEditorStyle({
     NodeCardStyle? nodeCard,
     NodeInfoDialogStyle? nodeInfoDialog,
@@ -38,6 +44,8 @@ class JsonEditorStyle {
     GraphToolbarStyle? graphToolbar,
     SplitViewStyle? splitView,
     EditorPanelStyle? editorPanel,
+    this.collapseChildrenByDefault = true,
+    this.collapseEntriesByDefault = true,
   })  : nodeCard = nodeCard ?? const NodeCardStyle(),
         nodeInfoDialog = nodeInfoDialog ?? const NodeInfoDialogStyle(),
         edge = edge ?? const EdgeStyle(),
@@ -54,6 +62,8 @@ class JsonEditorStyle {
     GraphToolbarStyle? graphToolbar,
     SplitViewStyle? splitView,
     EditorPanelStyle? editorPanel,
+    bool? collapseChildrenByDefault,
+    bool? collapseEntriesByDefault,
   }) {
     return JsonEditorStyle(
       nodeCard: nodeCard ?? this.nodeCard,
@@ -63,6 +73,8 @@ class JsonEditorStyle {
       graphToolbar: graphToolbar ?? this.graphToolbar,
       splitView: splitView ?? this.splitView,
       editorPanel: editorPanel ?? this.editorPanel,
+      collapseChildrenByDefault: collapseChildrenByDefault ?? this.collapseChildrenByDefault,
+      collapseEntriesByDefault: collapseEntriesByDefault ?? this.collapseEntriesByDefault,
     );
   }
 }

@@ -258,6 +258,7 @@ class _GraphView extends StatelessWidget {
         child: NodeCard(
           node: node,
           onToggleCollapse: () => state.toggleCollapse(node.id),
+          onToggleEntriesCollapse: () => state.toggleEntriesCollapse(node.id),
           style: nodeCardStyle,
           infoDialogStyle: nodeInfoDialogStyle,
         ),

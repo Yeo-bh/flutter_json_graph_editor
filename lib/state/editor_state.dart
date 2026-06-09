@@ -28,12 +28,18 @@ class EditorState extends ChangeNotifier {
   String _jsonText = '';
   JsonNode? _rootNode; // 파싱 성공 시 그래프에 표시되는 트리
   String? _error; // 파싱 실패 시 에러 메시지
+  final bool collapseChildrenByDefault;
+  final bool collapseEntriesByDefault;
 
   String get jsonText => _jsonText;
   JsonNode? get rootNode => _rootNode;
   String? get error => _error;
 
-  EditorState({String? initialJson}) {
+  EditorState({
+    String? initialJson,
+    this.collapseChildrenByDefault = true,
+    this.collapseEntriesByDefault = true,
+  }) {
     final json = initialJson ?? _kDefaultJson;
     _jsonText = json;
     _parse(json); // 초기 JSON으로 그래프 미리 표시
@@ -53,6 +59,17 @@ class EditorState extends ChangeNotifier {
     if (node != null) {
       node.isCollapsed = !node.isCollapsed;
       layoutTree(_rootNode!); // 접기 상태 바뀌면 레이아웃 재계산
+      notifyListeners();
+    }
+  }
+
+  // 카드 내부 entries 접기/펼치기
+  void toggleEntriesCollapse(String nodeId) {
+    if (_rootNode == null) return;
+    final node = _findNode(_rootNode!, nodeId);
+    if (node != null) {
+      node.isEntriesCollapsed = !node.isEntriesCollapsed;
+      layoutTree(_rootNode!);
       notifyListeners();
     }
   }
@@ -91,11 +108,35 @@ class EditorState extends ChangeNotifier {
     }
     final node = parseJson(text);
     if (node != null) {
+      if (collapseChildrenByDefault) _collapseChildren(node);
+      if (collapseEntriesByDefault) _collapseAllEntries(node);
       _rootNode = node;
       layoutTree(node); // 파싱 성공 시 즉시 레이아웃 계산
       _error = null;
     } else {
       _error = 'Invalid JSON'; // 파싱 실패 → 이전 그래프 유지, 에러만 표시
+    }
+  }
+
+  // root 직계 자식부터 모든 하위 노드를 접힌 상태로 초기화
+  void _collapseChildren(JsonNode node) {
+    for (final child in node.children) {
+      child.isCollapsed = true;
+      _collapseChildren(child);
+    }
+  }
+
+  // root 제외, 모든 하위 노드의 entries를 접힌 상태로 초기화
+  void _collapseAllEntries(JsonNode root) {
+    for (final child in root.children) {
+      _collapseEntriesRecursive(child);
+    }
+  }
+
+  void _collapseEntriesRecursive(JsonNode node) {
+    node.isEntriesCollapsed = true;
+    for (final child in node.children) {
+      _collapseEntriesRecursive(child);
     }
   }
 

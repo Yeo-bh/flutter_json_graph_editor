@@ -11,6 +11,7 @@ import 'node_info_dialog.dart';
 class NodeCard extends StatelessWidget {
   final JsonNode node;
   final VoidCallback onToggleCollapse; // 헤더의 ‹/› 버튼 클릭 시 호출
+  final VoidCallback onToggleEntriesCollapse; // entries 접기/펼치기 버튼
   final NodeCardStyle style; // 모든 시각적 옵션 (기본값 = NodeCardStyle.defaults)
   final NodeInfoDialogStyle infoDialogStyle;
 
@@ -18,6 +19,7 @@ class NodeCard extends StatelessWidget {
     super.key,
     required this.node,
     required this.onToggleCollapse,
+    required this.onToggleEntriesCollapse,
     this.style = const NodeCardStyle(),
     this.infoDialogStyle = const NodeInfoDialogStyle(),
   });
@@ -26,7 +28,8 @@ class NodeCard extends StatelessWidget {
     final state = context.read<EditorState>();
     showDialog(
       context: context,
-      builder: (_) => NodeInfoDialog(node: node, state: state, style: infoDialogStyle),
+      builder: (_) =>
+          NodeInfoDialog(node: node, state: state, style: infoDialogStyle),
     );
   }
 
@@ -62,9 +65,15 @@ class NodeCard extends StatelessWidget {
           mainAxisSize: MainAxisSize.min, // 내용 높이에 맞게 (border 오버플로 방지)
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _Header(node: node, onToggle: onToggleCollapse, style: style),
-            // entries 목록을 각각 한 줄 행으로 렌더링
-            ...node.entries.map((e) => _EntryRow(entry: e, style: style)),
+            _Header(
+              node: node,
+              onToggle: onToggleCollapse,
+              onToggleEntries: onToggleEntriesCollapse,
+              style: style,
+            ),
+            // entries 접혀있으면 숨김
+            if (!node.isEntriesCollapsed)
+              ...node.entries.map((e) => _EntryRow(entry: e, style: style)),
           ],
         ),
       ),
@@ -72,15 +81,17 @@ class NodeCard extends StatelessWidget {
   }
 }
 
-// 카드 상단 헤더: 타입 뱃지 + 라벨 + 접기/펼치기 버튼
+// 카드 상단 헤더: 타입 뱃지 + 라벨 + entries 토글 + 자식 접기/펼치기 버튼
 class _Header extends StatelessWidget {
   final JsonNode node;
   final VoidCallback onToggle;
+  final VoidCallback onToggleEntries;
   final NodeCardStyle style;
 
   const _Header({
     required this.node,
     required this.onToggle,
+    required this.onToggleEntries,
     required this.style,
   });
 
@@ -124,6 +135,28 @@ class _Header extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
           ),
+          // entries가 있을 때 접기/펼치기 버튼 표시
+          if (node.entries.isNotEmpty)
+            GestureDetector(
+              onTap: onToggleEntries,
+              child: Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: style.collapseIconBackgroundColor,
+                  borderRadius: BorderRadius.circular(
+                    style.collapseIconBorderRadius,
+                  ),
+                ),
+                child: Icon(
+                  node.isEntriesCollapsed
+                      ? Icons.expand_more
+                      : Icons.expand_less,
+                  size: style.collapseIconSize,
+                  color: style.collapseIconColor,
+                ),
+              ),
+            ),
+          if (node.entries.isNotEmpty && hasChildren) const SizedBox(width: 4),
           // 자식이 있을 때만 접기/펼치기 버튼 표시
           if (hasChildren)
             GestureDetector(
@@ -132,7 +165,9 @@ class _Header extends StatelessWidget {
                 padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
                   color: style.collapseIconBackgroundColor,
-                  borderRadius: BorderRadius.circular(style.collapseIconBorderRadius),
+                  borderRadius: BorderRadius.circular(
+                    style.collapseIconBorderRadius,
+                  ),
                 ),
                 child: Icon(
                   // 접힘: 오른쪽 화살표(펼치기 암시), 펼침: 왼쪽 화살표(접기 암시)
@@ -176,7 +211,9 @@ class _EntryRow extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: style.entrySeparatorPadding),
+            padding: EdgeInsets.symmetric(
+              horizontal: style.entrySeparatorPadding,
+            ),
             child: Text(
               ':',
               style: TextStyle(
@@ -204,9 +241,9 @@ class _EntryRow extends StatelessWidget {
 
   // 타입별 값 색상: string=초록, number=파랑, boolean=노랑, null=회색
   Color _valueColor(EntryType type) => switch (type) {
-        EntryType.string => style.stringValueColor,
-        EntryType.number => style.numberValueColor,
-        EntryType.boolean => style.booleanValueColor,
-        EntryType.nullValue => style.nullValueColor,
-      };
+    EntryType.string => style.stringValueColor,
+    EntryType.number => style.numberValueColor,
+    EntryType.boolean => style.booleanValueColor,
+    EntryType.nullValue => style.nullValueColor,
+  };
 }
