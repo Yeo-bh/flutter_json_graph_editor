@@ -14,7 +14,7 @@ export 'models/graph_panel_style.dart';
 export 'models/graph_toolbar_style.dart';
 export 'models/edge_style.dart';
 export 'models/node_card_style.dart';
-export 'models/node_info_dialog_style.dart';
+export 'models/node_detail_style.dart';
 export 'models/split_view_style.dart';
 
 // 상태 (jsonText 읽기 등)
@@ -26,3 +26,6 @@ export 'models/json_node.dart';
 // 타입 열거형
 export 'models/child_node_type.dart';
 export 'models/primitive_entry_type.dart';
+
+// 사이드 패널 (직접 사용 시)
+export 'widgets/node_side_panel.dart';

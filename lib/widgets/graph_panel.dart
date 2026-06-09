@@ -6,13 +6,14 @@ import '../models/graph_panel_style.dart';
 import '../models/graph_toolbar_style.dart';
 import '../models/json_node.dart';
 import '../models/node_card_style.dart';
-import '../models/node_info_dialog_style.dart';
+import '../models/node_detail_style.dart';
 import '../state/editor_state.dart';
 import '../utils/graph_transform.dart';
 import 'add_child_dialog.dart';
 import 'edge_painter.dart';
 import 'graph_toolbar.dart';
 import 'node_card.dart';
+import 'node_side_panel.dart';
 
 // 화면 우측 패널: 격자 배경 + JSON 시각화 그래프 + 줌 툴바
 class GraphPanel extends StatefulWidget {
@@ -20,7 +21,7 @@ class GraphPanel extends StatefulWidget {
   final GraphToolbarStyle toolbarStyle;
   final EdgeStyle edgeStyle;
   final NodeCardStyle nodeCardStyle;
-  final NodeInfoDialogStyle nodeInfoDialogStyle;
+  final NodeDetailStyle nodeDetailStyle;
   final AddChildDialogStyle addChildDialogStyle;
 
   /// 에디터 패널 접기/펼치기 콜백. null이면 툴바 버튼 미표시.
@@ -36,7 +37,7 @@ class GraphPanel extends StatefulWidget {
     this.toolbarStyle = const GraphToolbarStyle(),
     this.edgeStyle = const EdgeStyle(),
     this.nodeCardStyle = const NodeCardStyle(),
-    this.nodeInfoDialogStyle = const NodeInfoDialogStyle(),
+    this.nodeDetailStyle = const NodeDetailStyle(),
     this.addChildDialogStyle = const AddChildDialogStyle(),
     this.onToggleEditorPanel,
     this.extraActions = const [],
@@ -47,8 +48,11 @@ class GraphPanel extends StatefulWidget {
 }
 
 class _GraphPanelState extends State<GraphPanel> {
-  // InteractiveViewer 줌/패닝 상태를 프로그래밍으로 제어하는 컨트롤러
   final _transform = TransformationController();
+  JsonNode? _selectedNode; // 사이드 패널에 표시할 노드 (null이면 패널 닫힘)
+
+  void _openPanel(JsonNode node) => setState(() => _selectedNode = node);
+  void _closePanel() => setState(() => _selectedNode = null);
 
   @override
   void dispose() {
@@ -129,10 +133,39 @@ class _GraphPanelState extends State<GraphPanel> {
                   transformController: _transform,
                   edgeStyle: widget.edgeStyle,
                   nodeCardStyle: widget.nodeCardStyle,
-                  nodeInfoDialogStyle: widget.nodeInfoDialogStyle,
                   addChildDialogStyle: widget.addChildDialogStyle,
+                  onShowDetail: _openPanel,
                 );
               },
+            ),
+            // 사이드 패널 열려있을 때 그래프 영역 탭 → 패널 닫기
+            if (_selectedNode != null)
+              Positioned.fill(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTap: _closePanel,
+                ),
+              ),
+            // 우측 슬라이드인 사이드 패널
+            AnimatedPositioned(
+              duration: const Duration(milliseconds: 220),
+              curve: Curves.easeOut,
+              right: _selectedNode != null
+                  ? 0
+                  : -widget.nodeDetailStyle.panelWidth,
+              top: 0,
+              bottom: 0,
+              width: widget.nodeDetailStyle.panelWidth,
+              child: _selectedNode != null
+                  ? Consumer<EditorState>(
+                      builder: (context, state, _) => NodeSidePanel(
+                        node: _selectedNode!,
+                        state: state,
+                        onClose: _closePanel,
+                        style: widget.nodeDetailStyle,
+                      ),
+                    )
+                  : const SizedBox.shrink(),
             ),
             // 하단 중앙 툴바 오버레이
             Positioned(
@@ -215,8 +248,8 @@ class _GraphView extends StatelessWidget {
   final TransformationController transformController;
   final EdgeStyle edgeStyle;
   final NodeCardStyle nodeCardStyle;
-  final NodeInfoDialogStyle nodeInfoDialogStyle;
   final AddChildDialogStyle addChildDialogStyle;
+  final ValueChanged<JsonNode>? onShowDetail;
 
   const _GraphView({
     required this.root,
@@ -224,8 +257,8 @@ class _GraphView extends StatelessWidget {
     required this.transformController,
     required this.edgeStyle,
     required this.nodeCardStyle,
-    required this.nodeInfoDialogStyle,
     required this.addChildDialogStyle,
+    this.onShowDetail,
   });
 
   @override
@@ -277,8 +310,8 @@ class _GraphView extends StatelessWidget {
               onToggleCollapse: () => state.toggleCollapse(node.id),
               onToggleEntriesCollapse: () =>
                   state.toggleEntriesCollapse(node.id),
+              onShowDetail: () => onShowDetail?.call(node),
               style: nodeCardStyle,
-              infoDialogStyle: nodeInfoDialogStyle,
             ),
             const SizedBox(width: 8),
             _AddButton(

@@ -10,7 +10,7 @@ class EditorPanel extends StatefulWidget {
   final EditorPanelStyle style;
 
   EditorPanel({super.key, EditorPanelStyle? style})
-      : style = style ?? EditorPanelStyle();
+    : style = style ?? EditorPanelStyle();
 
   @override
   State<EditorPanel> createState() => _EditorPanelState();
@@ -93,7 +93,8 @@ class _EditorPanelState extends State<EditorPanel> {
                     fontHeight: widget.style.codeFontHeight,
                     cursorColor: widget.style.cursorColor,
                     selectionColor: widget.style.selectionColor, // 텍스트 선택 배경색
-                    cursorLineColor: widget.style.cursorLineColor, // 현재 커서 줄 하이라이트
+                    cursorLineColor:
+                        widget.style.cursorLineColor, // 현재 커서 줄 하이라이트
                     codeTheme: widget.style.codeTheme,
                   ),
                   // indicatorBuilder: 에디터 왼쪽에 라인 번호 영역을 커스텀으로 구성
@@ -120,7 +121,8 @@ class _EditorPanelState extends State<EditorPanel> {
                                 ),
                                 // 커서가 있는 줄의 라인 번호 색상 (더 밝게)
                                 focusedTextStyle: TextStyle(
-                                  color: widget.style.lineNumberFocusedTextColor,
+                                  color:
+                                      widget.style.lineNumberFocusedTextColor,
                                   fontSize: 12,
                                   fontFamily: 'monospace',
                                   fontWeight: FontWeight.w600,
@@ -139,7 +141,9 @@ class _EditorPanelState extends State<EditorPanel> {
                       },
                   // 라인 번호 영역과 코드 영역 사이 구분선
                   sperator: Container(
-                      width: 1, color: widget.style.separatorColor),
+                    width: 1,
+                    color: widget.style.separatorColor,
+                  ),
                 ),
               ),
             ),
@@ -166,7 +170,6 @@ class _EditorPanelState extends State<EditorPanel> {
       },
     );
   }
-
 }
 
 // 상단 툴바: 타이틀 + Format / Clear 버튼

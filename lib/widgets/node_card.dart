@@ -1,37 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../models/json_node.dart';
 import '../models/node_card_style.dart';
-import '../models/node_info_dialog_style.dart';
-import '../state/editor_state.dart';
-import 'node_info_dialog.dart';
 
 // 그래프에서 하나의 JSON 객체/배열을 나타내는 카드 위젯
-// 헤더 클릭 → entries 접기/펼치기, 바디(entries 영역) 클릭 → 상세 다이얼로그
+// 헤더 클릭 → entries 접기/펼치기, 바디(entries 영역) 클릭 → 사이드 패널
 class NodeCard extends StatelessWidget {
   final JsonNode node;
   final VoidCallback onToggleCollapse; // 헤더의 ‹/› 버튼 클릭 시 호출
   final VoidCallback onToggleEntriesCollapse; // 헤더 클릭 시 호출
+  final VoidCallback? onShowDetail; // entries 영역 클릭 시 호출 (사이드 패널 열기)
   final NodeCardStyle style;
-  final NodeInfoDialogStyle infoDialogStyle;
 
   const NodeCard({
     super.key,
     required this.node,
     required this.onToggleCollapse,
     required this.onToggleEntriesCollapse,
+    this.onShowDetail,
     this.style = const NodeCardStyle(),
-    this.infoDialogStyle = const NodeInfoDialogStyle(),
   });
-
-  void _showInfo(BuildContext context) {
-    final state = context.read<EditorState>();
-    showDialog(
-      context: context,
-      builder: (_) =>
-          NodeInfoDialog(node: node, state: state, style: infoDialogStyle),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,13 +51,15 @@ class NodeCard extends StatelessWidget {
                   : null,
               style: style,
             ),
-            // 펼쳐진 entries 영역 클릭 → 상세 다이얼로그
+            // 펼쳐진 entries 영역 클릭 → 사이드 패널 열기
             if (!node.isEntriesCollapsed && node.entries.isNotEmpty)
               GestureDetector(
                 behavior: HitTestBehavior.opaque,
-                onTap: () => _showInfo(context),
+                onTap: onShowDetail,
                 child: MouseRegion(
-                  cursor: SystemMouseCursors.click,
+                  cursor: onShowDetail != null
+                      ? SystemMouseCursors.click
+                      : SystemMouseCursors.basic,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: node.entries

@@ -1,4 +1,4 @@
-/// NodeInfoDialog에서 primitive entry 추가 시 선택 가능한 값 타입
+/// primitive entry 값 타입
 enum PrimitiveEntryType { string, number, boolean, nullValue }
 
 extension PrimitiveEntryTypeExt on PrimitiveEntryType {

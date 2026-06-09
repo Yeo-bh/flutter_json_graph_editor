@@ -4,7 +4,7 @@ import 'editor_panel_style.dart';
 import 'graph_panel_style.dart';
 import 'graph_toolbar_style.dart';
 import 'node_card_style.dart';
-import 'node_info_dialog_style.dart';
+import 'node_detail_style.dart';
 import 'split_view_style.dart';
 
 /// JSON 에디터 전체의 시각적 옵션을 한곳에서 관리하는 번들 스타일.
@@ -13,8 +13,8 @@ class JsonEditorStyle {
   /// 노드 카드 스타일.
   final NodeCardStyle nodeCard;
 
-  /// 노드 상세 다이얼로그 스타일.
-  final NodeInfoDialogStyle nodeInfoDialog;
+  /// 노드 상세 사이드 패널 스타일.
+  final NodeDetailStyle nodeDetail;
 
   /// 노드 연결선(엣지) 스타일.
   final EdgeStyle edge;
@@ -42,7 +42,7 @@ class JsonEditorStyle {
 
   JsonEditorStyle({
     NodeCardStyle? nodeCard,
-    NodeInfoDialogStyle? nodeInfoDialog,
+    NodeDetailStyle? nodeDetail,
     EdgeStyle? edge,
     GraphPanelStyle? graphPanel,
     GraphToolbarStyle? graphToolbar,
@@ -52,7 +52,7 @@ class JsonEditorStyle {
     this.collapseChildrenByDefault = true,
     this.collapseEntriesByDefault = true,
   }) : nodeCard = nodeCard ?? const NodeCardStyle(),
-       nodeInfoDialog = nodeInfoDialog ?? const NodeInfoDialogStyle(),
+       nodeDetail = nodeDetail ?? const NodeDetailStyle(),
        edge = edge ?? const EdgeStyle(),
        graphPanel = graphPanel ?? const GraphPanelStyle(),
        graphToolbar = graphToolbar ?? const GraphToolbarStyle(),
@@ -62,7 +62,7 @@ class JsonEditorStyle {
 
   JsonEditorStyle copyWith({
     NodeCardStyle? nodeCard,
-    NodeInfoDialogStyle? nodeInfoDialog,
+    NodeDetailStyle? nodeDetail,
     EdgeStyle? edge,
     GraphPanelStyle? graphPanel,
     GraphToolbarStyle? graphToolbar,
@@ -74,7 +74,7 @@ class JsonEditorStyle {
   }) {
     return JsonEditorStyle(
       nodeCard: nodeCard ?? this.nodeCard,
-      nodeInfoDialog: nodeInfoDialog ?? this.nodeInfoDialog,
+      nodeDetail: nodeDetail ?? this.nodeDetail,
       edge: edge ?? this.edge,
       graphPanel: graphPanel ?? this.graphPanel,
       graphToolbar: graphToolbar ?? this.graphToolbar,

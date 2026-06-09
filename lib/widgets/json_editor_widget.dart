@@ -51,7 +51,7 @@ class _JsonEditorWidgetState extends State<JsonEditorWidget> {
           toolbarStyle: widget.style.graphToolbar,
           edgeStyle: widget.style.edge,
           nodeCardStyle: widget.style.nodeCard,
-          nodeInfoDialogStyle: widget.style.nodeInfoDialog,
+          nodeDetailStyle: widget.style.nodeDetail,
           addChildDialogStyle: widget.style.addChildDialog,
           onToggleEditorPanel: () => _splitViewKey.currentState?.toggle(),
           extraActions: widget.extraActions,
