@@ -6,6 +6,7 @@ import '../models/node_card_style.dart';
 // 헤더 클릭 → entries 접기/펼치기, 바디(entries 영역) 클릭 → 사이드 패널
 class NodeCard extends StatelessWidget {
   final JsonNode node;
+  final bool isSelected;
   final VoidCallback onToggleCollapse; // 헤더의 ‹/› 버튼 클릭 시 호출
   final VoidCallback onToggleEntriesCollapse; // 헤더 클릭 시 호출
   final VoidCallback? onShowDetail; // entries 영역 클릭 시 호출 (사이드 패널 열기)
@@ -17,6 +18,7 @@ class NodeCard extends StatelessWidget {
     required this.onToggleCollapse,
     required this.onToggleEntriesCollapse,
     this.onShowDetail,
+    this.isSelected = false,
     this.style = const NodeCardStyle(),
   });
 
@@ -28,13 +30,23 @@ class NodeCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: style.backgroundColor,
         borderRadius: BorderRadius.circular(style.borderRadius),
-        border: Border.all(color: style.borderColor, width: style.borderWidth),
+        border: Border.all(
+          color: isSelected ? style.selectedBorderColor : style.borderColor,
+          width: style.borderWidth,
+        ),
         boxShadow: [
-          BoxShadow(
-            color: style.shadowColor,
-            blurRadius: style.shadowBlurRadius,
-            offset: style.shadowOffset,
-          ),
+          if (isSelected)
+            BoxShadow(
+              color: style.selectedBorderColor.withValues(alpha: 0.3),
+              blurRadius: 0,
+              spreadRadius: 2,
+            )
+          else
+            BoxShadow(
+              color: style.shadowColor,
+              blurRadius: style.shadowBlurRadius,
+              offset: style.shadowOffset,
+            ),
         ],
       ),
       child: ClipRRect(

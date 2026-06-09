@@ -135,6 +135,7 @@ class _GraphPanelState extends State<GraphPanel> {
                   nodeCardStyle: widget.nodeCardStyle,
                   addChildDialogStyle: widget.addChildDialogStyle,
                   onShowDetail: _openPanel,
+                  selectedNode: _selectedNode,
                 );
               },
             ),
@@ -250,6 +251,7 @@ class _GraphView extends StatelessWidget {
   final NodeCardStyle nodeCardStyle;
   final AddChildDialogStyle addChildDialogStyle;
   final ValueChanged<JsonNode>? onShowDetail;
+  final JsonNode? selectedNode;
 
   const _GraphView({
     required this.root,
@@ -259,6 +261,7 @@ class _GraphView extends StatelessWidget {
     required this.nodeCardStyle,
     required this.addChildDialogStyle,
     this.onShowDetail,
+    this.selectedNode,
   });
 
   @override
@@ -307,6 +310,7 @@ class _GraphView extends StatelessWidget {
           children: [
             NodeCard(
               node: node,
+              isSelected: selectedNode?.id == node.id,
               onToggleCollapse: () => state.toggleCollapse(node.id),
               onToggleEntriesCollapse: () =>
                   state.toggleEntriesCollapse(node.id),

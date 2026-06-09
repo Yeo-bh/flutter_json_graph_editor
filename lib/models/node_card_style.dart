@@ -135,6 +135,11 @@ class NodeCardStyle {
   /// 코드 가독성을 위해 monospace 계열 권장.
   final String fontFamily;
 
+  // ── 선택 상태 ──────────────────────────────────────────
+
+  /// 사이드 패널에서 선택된 노드 카드의 테두리 색.
+  final Color selectedBorderColor;
+
   // ── + 버튼 ──────────────────────────────────────────────
 
   /// + 버튼 아이콘 및 테두리 색.
@@ -189,6 +194,7 @@ class NodeCardStyle {
     this.booleanValueColor = const Color(0xFF6F42C1),
     this.nullValueColor = const Color(0xFF6A737D),
     this.fontFamily = 'monospace',
+    this.selectedBorderColor = const Color(0xFF0366D6),
     this.addButtonColor = const Color(0xFF0366D6),
     this.addButtonBackgroundColor = const Color(0xFFF1F8FF),
     this.addButtonSize = 26.0,
@@ -254,26 +260,34 @@ class NodeCardStyle {
       shadowColor: shadowColor ?? this.shadowColor,
       shadowBlurRadius: shadowBlurRadius ?? this.shadowBlurRadius,
       shadowOffset: shadowOffset ?? this.shadowOffset,
-      headerBackgroundColor: headerBackgroundColor ?? this.headerBackgroundColor,
-      headerPaddingHorizontal: headerPaddingHorizontal ?? this.headerPaddingHorizontal,
-      typeBadgeBackgroundColor: typeBadgeBackgroundColor ?? this.typeBadgeBackgroundColor,
+      headerBackgroundColor:
+          headerBackgroundColor ?? this.headerBackgroundColor,
+      headerPaddingHorizontal:
+          headerPaddingHorizontal ?? this.headerPaddingHorizontal,
+      typeBadgeBackgroundColor:
+          typeBadgeBackgroundColor ?? this.typeBadgeBackgroundColor,
       typeBadgeTextColor: typeBadgeTextColor ?? this.typeBadgeTextColor,
       typeBadgeFontSize: typeBadgeFontSize ?? this.typeBadgeFontSize,
-      typeBadgeBorderRadius: typeBadgeBorderRadius ?? this.typeBadgeBorderRadius,
+      typeBadgeBorderRadius:
+          typeBadgeBorderRadius ?? this.typeBadgeBorderRadius,
       badgeLabelGap: badgeLabelGap ?? this.badgeLabelGap,
       labelColor: labelColor ?? this.labelColor,
       labelFontSize: labelFontSize ?? this.labelFontSize,
       labelFontWeight: labelFontWeight ?? this.labelFontWeight,
       collapseIconColor: collapseIconColor ?? this.collapseIconColor,
       collapseIconSize: collapseIconSize ?? this.collapseIconSize,
-      collapseIconBackgroundColor: collapseIconBackgroundColor ?? this.collapseIconBackgroundColor,
-      collapseIconBorderRadius: collapseIconBorderRadius ?? this.collapseIconBorderRadius,
-      entryPaddingHorizontal: entryPaddingHorizontal ?? this.entryPaddingHorizontal,
+      collapseIconBackgroundColor:
+          collapseIconBackgroundColor ?? this.collapseIconBackgroundColor,
+      collapseIconBorderRadius:
+          collapseIconBorderRadius ?? this.collapseIconBorderRadius,
+      entryPaddingHorizontal:
+          entryPaddingHorizontal ?? this.entryPaddingHorizontal,
       entryDividerColor: entryDividerColor ?? this.entryDividerColor,
       entryKeyColor: entryKeyColor ?? this.entryKeyColor,
       entryKeyFontSize: entryKeyFontSize ?? this.entryKeyFontSize,
       entrySeparatorColor: entrySeparatorColor ?? this.entrySeparatorColor,
-      entrySeparatorPadding: entrySeparatorPadding ?? this.entrySeparatorPadding,
+      entrySeparatorPadding:
+          entrySeparatorPadding ?? this.entrySeparatorPadding,
       entryValueFontSize: entryValueFontSize ?? this.entryValueFontSize,
       stringValueColor: stringValueColor ?? this.stringValueColor,
       numberValueColor: numberValueColor ?? this.numberValueColor,
@@ -281,7 +295,8 @@ class NodeCardStyle {
       nullValueColor: nullValueColor ?? this.nullValueColor,
       fontFamily: fontFamily ?? this.fontFamily,
       addButtonColor: addButtonColor ?? this.addButtonColor,
-      addButtonBackgroundColor: addButtonBackgroundColor ?? this.addButtonBackgroundColor,
+      addButtonBackgroundColor:
+          addButtonBackgroundColor ?? this.addButtonBackgroundColor,
       addButtonSize: addButtonSize ?? this.addButtonSize,
       addButtonIconSize: addButtonIconSize ?? this.addButtonIconSize,
       addButtonBorderWidth: addButtonBorderWidth ?? this.addButtonBorderWidth,
