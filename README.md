@@ -18,7 +18,7 @@ JSON을 인터랙티브 노드 그래프로 시각화하고 편집하는 Flutter
 dependencies:
   json_graph_editor:
     git:
-      url: https://github.com/yourname/json_graph_editor.git
+      url: https://github.com/Yeo-bh/flutter_json_graph_editor.git
 ```
 
 로컬 경로 사용:

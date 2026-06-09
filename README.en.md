@@ -18,7 +18,7 @@ A Flutter widget that visualizes and edits JSON as an interactive node graph.
 dependencies:
   json_graph_editor:
     git:
-      url: https://github.com/yourname/json_graph_editor.git
+      url: https://github.com/Yeo-bh/flutter_json_graph_editor.git
 ```
 
 Or from a local path:
