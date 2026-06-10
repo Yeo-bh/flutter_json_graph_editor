@@ -6,7 +6,8 @@ A Flutter widget that visualizes and edits JSON as an interactive node graph.
 
 - Left panel: syntax-highlighted JSON editor with line numbers and block folding
 - Right panel: interactive node graph with zoom, pan, and fit-to-view
-- Tap any node card to inspect and edit its properties inline
+- Tap any node card to inspect, edit, add, and delete properties in the side panel
+- Search nodes by label, entry key, or value — auto-expands and highlights matches
 - Full style customization via `JsonEditorStyle`
 - Extend the toolbar with custom action buttons
 
@@ -134,6 +135,22 @@ JsonEditorStyle(
   ),
 )
 ```
+
+---
+
+## Search
+
+Open the search bar with the 🔍 button in the toolbar. Press Enter or the search button to run.
+
+| Mode | Searches |
+|------|----------|
+| All (default) | Node label + entry key + entry value |
+| Key | Node label only |
+| Value | Entry value only |
+
+- Matched nodes get an orange border; matched entry rows get a yellow background
+- Ancestor nodes along the path to the match are also highlighted
+- The graph auto-expands to reveal matched nodes
 
 ---
 
