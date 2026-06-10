@@ -7,7 +7,7 @@ part 'node_detail_style.freezed.dart';
 abstract class NodeDetailStyle with _$NodeDetailStyle {
   const factory NodeDetailStyle({
     /// 패널 너비(px).
-    @Default(280.0) double panelWidth,
+    @Default(300.0) double panelWidth,
 
     /// 패널 배경색.
     @Default(Color(0xFFFFFFFF)) Color backgroundColor,
@@ -31,7 +31,8 @@ abstract class NodeDetailStyle with _$NodeDetailStyle {
     @Default(4.0) double headerBadgeBorderRadius,
 
     /// 타입 뱃지 내부 패딩.
-    @Default(EdgeInsets.symmetric(horizontal: 6, vertical: 3)) EdgeInsets headerBadgePadding,
+    @Default(EdgeInsets.symmetric(horizontal: 6, vertical: 3))
+    EdgeInsets headerBadgePadding,
 
     /// 헤더 제목 텍스트 색.
     @Default(Color(0xFF24292E)) Color titleColor,
@@ -43,7 +44,7 @@ abstract class NodeDetailStyle with _$NodeDetailStyle {
     @Default(FontWeight.w600) FontWeight titleFontWeight,
 
     /// 닫기(X) 아이콘 색.
-    @Default(Color(0xFF6A737D)) Color closeIconColor,
+    @Default(Colors.red) Color closeIconColor,
 
     /// 닫기(X) 아이콘 크기(px).
     @Default(18.0) double closeIconSize,
@@ -100,7 +101,7 @@ abstract class NodeDetailStyle with _$NodeDetailStyle {
     @Default(Color(0xFF6A737D)) Color entryKeyColor,
 
     /// entry 키 폰트 크기(pt).
-    @Default(12.0) double entryKeyFontSize,
+    @Default(14.0) double entryKeyFontSize,
 
     /// ':' 구분자 색.
     @Default(Color(0xFFBEC4CB)) Color entrySeparatorColor,
@@ -136,7 +137,8 @@ abstract class NodeDetailStyle with _$NodeDetailStyle {
     @Default(3.0) double typeBadgeBorderRadius,
 
     /// entry 타입 뱃지 내부 패딩.
-    @Default(EdgeInsets.symmetric(horizontal: 5, vertical: 2)) EdgeInsets typeBadgePadding,
+    @Default(EdgeInsets.symmetric(horizontal: 5, vertical: 2))
+    EdgeInsets typeBadgePadding,
 
     /// 패널 전체에 적용되는 폰트 패밀리.
     @Default('monospace') String fontFamily,

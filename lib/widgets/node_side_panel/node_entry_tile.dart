@@ -2,21 +2,33 @@ import 'package:flutter/material.dart';
 import '../../models/json_node.dart';
 import '../../models/node_detail_style.dart';
 
+/// 노드의 단일 entry(키-값 쌍)를 표시하는 카드 타일.
+/// 키(상단, bold)와 값(하단)을 분리 표시하며, 각 영역을 더블클릭하면 인라인 편집 모드로 전환된다.
 class NodeEntryTile extends StatelessWidget {
   final NodeEntry entry;
-  final bool isEditing;
+  final bool isEditingKey;
+  final bool isEditingValue;
+
+  /// 키·값 중 하나만 편집 가능하므로 컨트롤러는 공유
   final TextEditingController? editController;
-  final VoidCallback onStartEdit;
-  final VoidCallback onSaveEdit;
+  final VoidCallback onStartEditKey;
+  final VoidCallback onStartEditValue;
+  final VoidCallback onSaveEditKey;
+  final VoidCallback onSaveEditValue;
+  final VoidCallback onDelete;
   final NodeDetailStyle style;
 
   const NodeEntryTile({
     super.key,
     required this.entry,
-    required this.isEditing,
+    required this.isEditingKey,
+    required this.isEditingValue,
     required this.editController,
-    required this.onStartEdit,
-    required this.onSaveEdit,
+    required this.onStartEditKey,
+    required this.onStartEditValue,
+    required this.onSaveEditKey,
+    required this.onSaveEditValue,
+    required this.onDelete,
     required this.style,
   });
 
@@ -31,99 +43,181 @@ class NodeEntryTile extends StatelessWidget {
       EntryType.nullValue => s.nullValueColor,
     };
 
-    return Container(
-      margin: EdgeInsets.only(bottom: s.entryTileBottomMargin),
-      padding: EdgeInsets.symmetric(
-        horizontal: s.entryTilePaddingHorizontal,
-        vertical: s.entryTilePaddingVertical,
-      ),
-      decoration: BoxDecoration(
-        color: s.entryTileBackgroundColor,
-        borderRadius: BorderRadius.circular(s.entryTileBorderRadius),
-      ),
-      child: Row(
-        children: [
-          Text(
-            entry.key,
-            style: TextStyle(
-              color: s.entryKeyColor,
-              fontSize: s.entryKeyFontSize,
-              fontFamily: s.fontFamily,
-            ),
-          ),
-          Padding(
+    // 타일 카드 + 우측 X 버튼
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Expanded(
+          child: Container(
+            margin: EdgeInsets.only(bottom: s.entryTileBottomMargin),
             padding: EdgeInsets.symmetric(
-              horizontal: s.entrySeparatorPaddingHorizontal,
+              horizontal: s.entryTilePaddingHorizontal,
+              vertical: s.entryTilePaddingVertical,
             ),
-            child: Text(
-              ':',
-              style: TextStyle(
-                color: s.entrySeparatorColor,
-                fontSize: s.entryKeyFontSize,
-              ),
+            decoration: BoxDecoration(
+              color: s.entryTileBackgroundColor,
+              borderRadius: BorderRadius.circular(s.entryTileBorderRadius),
             ),
-          ),
-          Expanded(
-            child: isEditing
-                ? TextField(
-                    controller: editController,
-                    autofocus: true,
-                    style: TextStyle(
-                      color: s.metaValueColor,
-                      fontFamily: s.fontFamily,
-                      fontSize: s.entryValueFontSize,
-                    ),
-                    decoration: InputDecoration(
-                      isDense: true,
-                      contentPadding: EdgeInsets.zero,
-                      border: InputBorder.none,
-                      enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: s.dividerColor),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 키 행: 이름(더블클릭 편집) + 타입 뱃지
+                Row(
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        onDoubleTap: isEditingKey ? null : onStartEditKey,
+                        child: isEditingKey
+                            ? TextField(
+                                controller: editController,
+                                autofocus: true,
+                                style: TextStyle(
+                                  color: s.entryKeyColor,
+                                  fontFamily: s.fontFamily,
+                                  fontSize: s.entryKeyFontSize,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                decoration: InputDecoration(
+                                  isDense: true,
+                                  contentPadding: EdgeInsets.zero,
+                                  border: InputBorder.none,
+                                  enabledBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: s.dividerColor,
+                                    ),
+                                  ),
+                                  focusedBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: s.headerBadgeTextColor,
+                                    ),
+                                  ),
+                                ),
+                                onSubmitted: (_) => onSaveEditKey(),
+                              )
+                            : Text(
+                                entry.key,
+                                style: TextStyle(
+                                  color: s.entryKeyColor,
+                                  fontSize: s.entryKeyFontSize,
+                                  fontFamily: s.fontFamily,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                       ),
-                      focusedBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: s.headerBadgeTextColor),
+                    ),
+                    const SizedBox(width: 6),
+                    if (isEditingKey)
+                      IconButton(
+                        onPressed: onSaveEditKey,
+                        tooltip: '저장',
+                        icon: Icon(
+                          Icons.check,
+                          size: 20,
+                          color: s.headerBadgeTextColor,
+                        ),
+                        style: IconButton.styleFrom(
+                          shape: const CircleBorder(),
+                          padding: const EdgeInsets.all(8),
+                        ),
+                      )
+                    else
+                      Container(
+                        padding: s.typeBadgePadding,
+                        decoration: BoxDecoration(
+                          color: s.typeBadgeBackgroundColor,
+                          borderRadius: BorderRadius.circular(
+                            s.typeBadgeBorderRadius,
+                          ),
+                        ),
+                        child: Text(
+                          entry.type.name,
+                          style: TextStyle(
+                            color: s.typeBadgeTextColor,
+                            fontSize: s.typeBadgeFontSize,
+                            fontFamily: s.fontFamily,
+                          ),
+                        ),
                       ),
-                    ),
-                    onSubmitted: (_) => onSaveEdit(),
-                  )
-                : Text(
-                    entry.displayValue,
-                    style: TextStyle(
-                      color: valueColor,
-                      fontSize: s.entryValueFontSize,
-                      fontFamily: s.fontFamily,
-                    ),
-                  ),
-          ),
-          if (!isEditing) ...[
-            const SizedBox(width: 6),
-            Container(
-              padding: s.typeBadgePadding,
-              decoration: BoxDecoration(
-                color: s.typeBadgeBackgroundColor,
-                borderRadius: BorderRadius.circular(s.typeBadgeBorderRadius),
-              ),
-              child: Text(
-                entry.type.name,
-                style: TextStyle(
-                  color: s.typeBadgeTextColor,
-                  fontSize: s.typeBadgeFontSize,
-                  fontFamily: s.fontFamily,
+                  ],
                 ),
-              ),
-            ),
-          ],
-          const SizedBox(width: 6),
-          GestureDetector(
-            onTap: isEditing ? onSaveEdit : onStartEdit,
-            child: Icon(
-              isEditing ? Icons.check : Icons.edit,
-              size: 16,
-              color: isEditing ? s.headerBadgeTextColor : s.metaLabelColor,
+                // 값 행: 내용(더블클릭 편집) + 저장 버튼
+                SizedBox(height: s.entryTilePaddingVertical),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        onDoubleTap: isEditingValue ? null : onStartEditValue,
+                        child: isEditingValue
+                            ? TextField(
+                                controller: editController,
+                                autofocus: true,
+                                maxLines: null,
+                                style: TextStyle(
+                                  color: s.metaValueColor,
+                                  fontFamily: s.fontFamily,
+                                  fontSize: s.entryValueFontSize,
+                                ),
+                                decoration: InputDecoration(
+                                  isDense: true,
+                                  contentPadding: EdgeInsets.zero,
+                                  border: InputBorder.none,
+                                  enabledBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: s.dividerColor,
+                                    ),
+                                  ),
+                                  focusedBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: s.headerBadgeTextColor,
+                                    ),
+                                  ),
+                                ),
+                                onSubmitted: (_) => onSaveEditValue(),
+                              )
+                            : Text(
+                                entry.displayValue,
+                                style: TextStyle(
+                                  color: valueColor,
+                                  fontSize: s.entryValueFontSize,
+                                  fontFamily: s.fontFamily,
+                                ),
+                              ),
+                      ),
+                    ),
+                    if (isEditingValue) ...[
+                      const SizedBox(width: 6),
+                      IconButton(
+                        onPressed: onSaveEditValue,
+                        tooltip: '저장',
+                        icon: Icon(
+                          Icons.check,
+                          size: 20,
+                          color: s.headerBadgeTextColor,
+                        ),
+                        style: IconButton.styleFrom(
+                          shape: const CircleBorder(),
+                          padding: const EdgeInsets.all(8),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ],
             ),
           ),
-        ],
-      ),
+        ),
+        // 삭제 버튼
+        IconButton(
+          onPressed: onDelete,
+          tooltip: '삭제',
+          icon: Icon(Icons.close, size: 14, color: s.closeIconColor),
+          style: IconButton.styleFrom(
+            shape: const CircleBorder(),
+            padding: const EdgeInsets.all(4),
+          ),
+        ),
+      ],
     );
   }
 }
