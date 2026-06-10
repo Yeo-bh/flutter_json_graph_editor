@@ -3,10 +3,10 @@ import '../../models/json_node.dart';
 import '../../models/node_detail_style.dart';
 import '../../state/editor_state.dart';
 import '../../utils/json_value_parser.dart';
+import '../../utils/node_finder.dart';
 import 'node_entry_tile.dart';
+import 'node_side_panel_header.dart';
 
-/// 그래프 패널 우측에 오버레이되는 노드 상세 사이드 패널.
-/// [NodeDetailStyle.panelWidth]로 너비를 조절한다.
 class NodeSidePanel extends StatefulWidget {
   final JsonNode node;
   final EditorState state;
@@ -29,7 +29,6 @@ class _NodeSidePanelState extends State<NodeSidePanel> {
   late List<String> _nodePath;
   String? _editingKey;
   TextEditingController? _editController;
-
   bool _isEditingLabel = false;
   TextEditingController? _labelController;
 
@@ -43,7 +42,6 @@ class _NodeSidePanelState extends State<NodeSidePanel> {
   @override
   void didUpdateWidget(NodeSidePanel old) {
     super.didUpdateWidget(old);
-    // 다른 노드로 교체될 때 편집 상태 초기화 및 path 갱신
     if (old.node.path.join('/') != widget.node.path.join('/')) {
       _nodePath = widget.node.path;
       _editingKey = null;
@@ -68,24 +66,7 @@ class _NodeSidePanelState extends State<NodeSidePanel> {
   JsonNode get _node {
     final root = widget.state.rootNode;
     if (root == null) return widget.node;
-    return _findByPath(root, _nodePath) ?? widget.node;
-  }
-
-  JsonNode? _findByPath(JsonNode node, List<String> target) {
-    if (_pathEq(node.path, target)) return node;
-    for (final child in node.children) {
-      final found = _findByPath(child, target);
-      if (found != null) return found;
-    }
-    return null;
-  }
-
-  bool _pathEq(List<String> a, List<String> b) {
-    if (a.length != b.length) return false;
-    for (var i = 0; i < a.length; i++) {
-      if (a[i] != b[i]) return false;
-    }
-    return true;
+    return findNodeByPath(root, _nodePath) ?? widget.node;
   }
 
   void _startLabelEdit(JsonNode node) {
@@ -157,7 +138,16 @@ class _NodeSidePanelState extends State<NodeSidePanel> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildHeader(context, node),
+          NodeSidePanelHeader(
+            node: node,
+            style: s,
+            isEditingLabel: _isEditingLabel,
+            labelController: _labelController,
+            onClose: widget.onClose,
+            onStartEdit: node.path.isNotEmpty ? () => _startLabelEdit(node) : null,
+            onSaveEdit: _saveLabelEdit,
+            onCancelEdit: _cancelLabelEdit,
+          ),
           Divider(height: 1, color: s.dividerColor),
           Expanded(
             child: SingleChildScrollView(
@@ -166,12 +156,11 @@ class _NodeSidePanelState extends State<NodeSidePanel> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _metaRow('Type', node.isArray ? 'Array' : 'Object'),
-                  // _metaRow('Key', node.label),
                   if (node.children.isNotEmpty)
                     _metaRow('Children', '${node.children.length}'),
                   if (node.entries.isNotEmpty) ...[
                     const SizedBox(height: 12),
-                    _buildPropertiesLabel(),
+                    _propertiesLabel(s),
                     const SizedBox(height: 8),
                     ...node.entries.map(
                       (entry) => NodeEntryTile(
@@ -195,86 +184,7 @@ class _NodeSidePanelState extends State<NodeSidePanel> {
     );
   }
 
-  Widget _buildHeader(BuildContext context, JsonNode node) {
-    final s = widget.style;
-    final canEditLabel = node.path.isNotEmpty;
-
-    final Widget labelWidget = _isEditingLabel
-        ? TextField(
-            controller: _labelController,
-            autofocus: true,
-            style: TextStyle(
-              color: s.titleColor,
-              fontSize: s.titleFontSize,
-              fontWeight: s.titleFontWeight,
-              fontFamily: s.fontFamily,
-            ),
-            decoration: InputDecoration(
-              isDense: true,
-              contentPadding: EdgeInsets.zero,
-              border: InputBorder.none,
-              enabledBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: s.dividerColor),
-              ),
-              focusedBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: s.headerBadgeTextColor),
-              ),
-            ),
-            onSubmitted: (_) => _saveLabelEdit(),
-            onTapOutside: (_) => _cancelLabelEdit(),
-          )
-        : GestureDetector(
-            onDoubleTap: canEditLabel ? () => _startLabelEdit(node) : null,
-            child: Text(
-              node.label,
-              style: TextStyle(
-                color: s.titleColor,
-                fontSize: s.titleFontSize,
-                fontWeight: s.titleFontWeight,
-              ),
-              overflow: TextOverflow.ellipsis,
-            ),
-          );
-
-    return Padding(
-      padding: s.headerPadding,
-      child: Row(
-        children: [
-          Container(
-            padding: s.headerBadgePadding,
-            decoration: BoxDecoration(
-              color: s.headerBadgeBackgroundColor,
-              borderRadius: BorderRadius.circular(s.headerBadgeBorderRadius),
-            ),
-            child: Text(
-              node.isArray ? '[ ]' : '{ }',
-              style: TextStyle(
-                color: s.headerBadgeTextColor,
-                fontSize: s.headerBadgeFontSize,
-                fontFamily: s.fontFamily,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(child: labelWidget),
-          IconButton(
-            onPressed: widget.onClose,
-            icon: Icon(
-              Icons.close,
-              size: s.closeIconSize,
-              color: s.closeIconColor,
-            ),
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPropertiesLabel() {
-    final s = widget.style;
+  Widget _propertiesLabel(NodeDetailStyle s) {
     return Text(
       'Properties',
       style: TextStyle(
