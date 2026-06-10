@@ -23,6 +23,7 @@ class AddChildDialog extends StatefulWidget {
 class _AddChildDialogState extends State<AddChildDialog> {
   late final TextEditingController _keyController;
   ChildNodeType _selectedType = ChildNodeType.object;
+  String? _keyError;
 
   AddChildDialogStyle get s => widget.style;
 
@@ -41,6 +42,16 @@ class _AddChildDialogState extends State<AddChildDialog> {
   void _submit() {
     final key = widget.parentNode.isArray ? null : _keyController.text.trim();
     if (key != null && key.isEmpty) return;
+    if (key != null) {
+      final existingKeys = {
+        ...widget.parentNode.children.map((c) => c.label),
+        ...widget.parentNode.entries.map((e) => e.key),
+      };
+      if (existingKeys.contains(key)) {
+        setState(() => _keyError = '이미 존재하는 키입니다');
+        return;
+      }
+    }
     widget.state.addChildToNode(
       widget.parentNode.path,
       key,
@@ -134,6 +145,8 @@ class _AddChildDialogState extends State<AddChildDialog> {
                   horizontal: 10,
                   vertical: 9,
                 ),
+                errorText: _keyError,
+                errorStyle: const TextStyle(fontSize: 11),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(s.keyFieldBorderRadius),
                   borderSide: BorderSide(color: s.keyFieldBorderColor),
@@ -142,7 +155,18 @@ class _AddChildDialogState extends State<AddChildDialog> {
                   borderRadius: BorderRadius.circular(s.keyFieldBorderRadius),
                   borderSide: BorderSide(color: s.keyFieldFocusedBorderColor),
                 ),
+                errorBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(s.keyFieldBorderRadius),
+                  borderSide: const BorderSide(color: Colors.red),
+                ),
+                focusedErrorBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(s.keyFieldBorderRadius),
+                  borderSide: const BorderSide(color: Colors.red),
+                ),
               ),
+              onChanged: (_) {
+                if (_keyError != null) setState(() => _keyError = null);
+              },
               onSubmitted: (_) => _submit(),
             ),
             const SizedBox(height: 16),
