@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/split_view_style.dart';
+import '../../models/split_view_style.dart';
 
 class SplitView extends StatefulWidget {
   final Widget left;

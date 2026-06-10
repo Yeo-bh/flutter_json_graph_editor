@@ -3,9 +3,10 @@ import 'package:provider/provider.dart';
 import 'package:re_editor/re_editor.dart';
 import 'package:re_highlight/languages/json.dart';
 import 'package:re_highlight/styles/atom-one-light.dart';
-import '../models/editor_panel_style.dart';
-import '../state/editor_state.dart';
-import '../utils/json_parser.dart';
+import '../../models/editor_panel_style.dart';
+import '../../state/editor_state.dart';
+import '../../utils/json_parser.dart';
+import 'editor_toolbar.dart';
 
 // 화면 좌측 패널: 라인 번호 + 문법 강조 JSON 에디터
 class EditorPanel extends StatefulWidget {
@@ -52,7 +53,7 @@ class _EditorPanelState extends State<EditorPanel> {
         final hasError = state.error != null && state.jsonText.isNotEmpty;
         return Column(
           children: [
-            _Toolbar(
+            EditorToolbar(
               onClear: () {
                 _controller.text = ''; // 에디터 내용 지우기
                 state.updateText(''); // 그래프도 초기화
@@ -167,69 +168,6 @@ class _EditorPanelState extends State<EditorPanel> {
           ],
         );
       },
-    );
-  }
-}
-
-// 상단 툴바: 타이틀 + Format / Clear 버튼
-class _Toolbar extends StatelessWidget {
-  final VoidCallback onClear;
-  final VoidCallback onFormat;
-  final Color toolbarBackgroundColor;
-  final Color toolbarTitleColor;
-  final Color toolbarIconColor;
-
-  const _Toolbar({
-    required this.onClear,
-    required this.onFormat,
-    required this.toolbarBackgroundColor,
-    required this.toolbarTitleColor,
-    required this.toolbarIconColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 40,
-      color: toolbarBackgroundColor,
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      child: Row(
-        children: [
-          Icon(Icons.data_object, size: 14, color: toolbarIconColor),
-          const SizedBox(width: 8),
-          Text(
-            'JSON',
-            style: TextStyle(
-              color: toolbarTitleColor,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.5,
-            ),
-          ),
-          const Spacer(),
-          IconButton(
-            onPressed: onFormat,
-            tooltip: 'Format JSON',
-            icon: const Icon(Icons.format_align_left),
-            color: toolbarIconColor,
-            iconSize: 17,
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints.tightFor(width: 32, height: 32),
-          ),
-          TextButton(
-            onPressed: onClear,
-            style: TextButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              minimumSize: Size.zero,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            ),
-            child: Text(
-              'Clear',
-              style: TextStyle(color: toolbarIconColor, fontSize: 12),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

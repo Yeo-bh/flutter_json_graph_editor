@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../models/json_node.dart';
-import '../models/node_card_style.dart';
+import '../../models/json_node.dart';
+import '../../models/node_card_style.dart';
 
 // 그래프에서 하나의 JSON 객체/배열을 나타내는 카드 위젯
 // 헤더 클릭 → entries 접기/펼치기, 바디(entries 영역) 클릭 → 사이드 패널

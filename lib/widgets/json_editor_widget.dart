@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/json_editor_style.dart';
 import '../state/editor_state.dart';
-import 'editor_panel.dart';
-import 'graph_panel.dart';
-import 'graph_toolbar.dart';
-import 'split_view.dart';
+import 'editor_panel/editor_panel.dart';
+import 'graph_panel/graph_panel.dart';
+import 'graph_toolbar/graph_toolbar.dart';
+import 'split_view/split_view.dart';
 
 /// JSON 에디터 패키지의 최상위 위젯.
 /// [style]로 전체 테마를 한 번에 제어하고,

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import '../models/json_node.dart';
-import '../models/node_detail_style.dart';
-import '../state/editor_state.dart';
-import '../utils/json_value_parser.dart';
+import '../../models/json_node.dart';
+import '../../models/node_detail_style.dart';
+import '../../state/editor_state.dart';
+import '../../utils/json_value_parser.dart';
+import 'node_entry_tile.dart';
 
 /// 그래프 패널 우측에 오버레이되는 노드 상세 사이드 패널.
 /// [NodeDetailStyle.panelWidth]로 너비를 조절한다.
@@ -172,7 +173,18 @@ class _NodeSidePanelState extends State<NodeSidePanel> {
                     const SizedBox(height: 12),
                     _buildPropertiesLabel(),
                     const SizedBox(height: 8),
-                    ...node.entries.map(_entryTile),
+                    ...node.entries.map(
+                      (entry) => NodeEntryTile(
+                        entry: entry,
+                        isEditing: _editingKey == entry.navigationKey,
+                        editController: _editingKey == entry.navigationKey
+                            ? _editController
+                            : null,
+                        onStartEdit: () => _startEdit(entry),
+                        onSaveEdit: () => _saveEdit(entry),
+                        style: s,
+                      ),
+                    ),
                   ],
                 ],
               ),
@@ -299,113 +311,6 @@ class _NodeSidePanelState extends State<NodeSidePanel> {
                 fontSize: s.metaValueFontSize,
                 fontFamily: s.fontFamily,
               ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _entryTile(NodeEntry entry) {
-    final isEditing = _editingKey == entry.navigationKey;
-    final s = widget.style;
-
-    final Color valueColor = switch (entry.type) {
-      EntryType.string => s.stringValueColor,
-      EntryType.number => s.numberValueColor,
-      EntryType.boolean => s.booleanValueColor,
-      EntryType.nullValue => s.nullValueColor,
-    };
-
-    return Container(
-      margin: EdgeInsets.only(bottom: s.entryTileBottomMargin),
-      padding: EdgeInsets.symmetric(
-        horizontal: s.entryTilePaddingHorizontal,
-        vertical: s.entryTilePaddingVertical,
-      ),
-      decoration: BoxDecoration(
-        color: s.entryTileBackgroundColor,
-        borderRadius: BorderRadius.circular(s.entryTileBorderRadius),
-      ),
-      child: Row(
-        children: [
-          Text(
-            entry.key,
-            style: TextStyle(
-              color: s.entryKeyColor,
-              fontSize: s.entryKeyFontSize,
-              fontFamily: s.fontFamily,
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: s.entrySeparatorPaddingHorizontal,
-            ),
-            child: Text(
-              ':',
-              style: TextStyle(
-                color: s.entrySeparatorColor,
-                fontSize: s.entryKeyFontSize,
-              ),
-            ),
-          ),
-          Expanded(
-            child: isEditing
-                ? TextField(
-                    controller: _editController,
-                    autofocus: true,
-                    style: TextStyle(
-                      color: s.metaValueColor,
-                      fontFamily: s.fontFamily,
-                      fontSize: s.entryValueFontSize,
-                    ),
-                    decoration: InputDecoration(
-                      isDense: true,
-                      contentPadding: EdgeInsets.zero,
-                      border: InputBorder.none,
-                      enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: s.dividerColor),
-                      ),
-                      focusedBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: s.headerBadgeTextColor),
-                      ),
-                    ),
-                    onSubmitted: (_) => _saveEdit(entry),
-                  )
-                : Text(
-                    entry.displayValue,
-                    style: TextStyle(
-                      color: valueColor,
-                      fontSize: s.entryValueFontSize,
-                      fontFamily: s.fontFamily,
-                    ),
-                  ),
-          ),
-          if (!isEditing) ...[
-            const SizedBox(width: 6),
-            Container(
-              padding: s.typeBadgePadding,
-              decoration: BoxDecoration(
-                color: s.typeBadgeBackgroundColor,
-                borderRadius: BorderRadius.circular(s.typeBadgeBorderRadius),
-              ),
-              child: Text(
-                entry.type.name,
-                style: TextStyle(
-                  color: s.typeBadgeTextColor,
-                  fontSize: s.typeBadgeFontSize,
-                  fontFamily: s.fontFamily,
-                ),
-              ),
-            ),
-          ],
-          const SizedBox(width: 6),
-          GestureDetector(
-            onTap: isEditing ? () => _saveEdit(entry) : () => _startEdit(entry),
-            child: Icon(
-              isEditing ? Icons.check : Icons.edit,
-              size: 16,
-              color: isEditing ? s.headerBadgeTextColor : s.metaLabelColor,
             ),
           ),
         ],

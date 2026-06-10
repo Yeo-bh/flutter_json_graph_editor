@@ -4,7 +4,7 @@ library json_graph_editor;
 export 'widgets/json_editor_widget.dart';
 
 // 툴바 액션
-export 'widgets/graph_toolbar.dart' show GraphToolbarAction;
+export 'widgets/graph_toolbar/graph_toolbar.dart' show GraphToolbarAction;
 
 // 스타일 모델
 export 'models/json_editor_style.dart';
@@ -28,4 +28,4 @@ export 'models/child_node_type.dart';
 export 'models/primitive_entry_type.dart';
 
 // 사이드 패널 (직접 사용 시)
-export 'widgets/node_side_panel.dart';
+export 'widgets/node_side_panel/node_side_panel.dart';

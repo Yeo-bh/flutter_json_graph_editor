@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../models/add_child_dialog_style.dart';
-import '../models/child_node_type.dart';
-import '../models/json_node.dart';
-import '../state/editor_state.dart';
+import '../../models/add_child_dialog_style.dart';
+import '../../models/child_node_type.dart';
+import '../../models/json_node.dart';
+import '../../state/editor_state.dart';
 
 class AddChildDialog extends StatefulWidget {
   final JsonNode parentNode;
