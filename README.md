@@ -4,6 +4,8 @@ English documentation: [README.en.md](README.en.md)
 
 JSON을 인터랙티브 노드 그래프로 시각화하고 편집하는 Flutter 위젯.
 
+![preview](assets/screenshots/example.png)
+
 - 좌측 패널: 라인 번호 + 문법 강조 + 블록 접기가 지원되는 JSON 에디터
 - 우측 패널: 줌, 패닝, 전체 맞춤이 가능한 노드 그래프
 - 노드 카드를 탭하면 속성을 사이드 패널에서 조회·편집·추가·삭제 가능

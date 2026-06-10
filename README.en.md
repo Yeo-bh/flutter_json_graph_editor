@@ -4,6 +4,8 @@
 
 A Flutter widget that visualizes and edits JSON as an interactive node graph.
 
+![preview](assets/screenshots/example.png)
+
 - Left panel: syntax-highlighted JSON editor with line numbers and block folding
 - Right panel: interactive node graph with zoom, pan, and fit-to-view
 - Tap any node card to inspect, edit, add, and delete properties in the side panel
