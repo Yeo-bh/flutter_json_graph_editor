@@ -50,8 +50,15 @@ class _GraphPanelState extends State<GraphPanel> {
   final _transform = TransformationController();
   JsonNode? _selectedNode; // 사이드 패널에 표시할 노드 (null이면 패널 닫힘)
 
-  void _openPanel(JsonNode node) => setState(() => _selectedNode = node);
-  void _closePanel() => setState(() => _selectedNode = null);
+  void _openPanel(JsonNode node) {
+    setState(() => _selectedNode = node);
+    context.read<EditorState>().selectNode(node.path);
+  }
+
+  void _closePanel() {
+    setState(() => _selectedNode = null);
+    context.read<EditorState>().selectNode(null);
+  }
 
   @override
   void dispose() {

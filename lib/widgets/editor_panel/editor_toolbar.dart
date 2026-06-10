@@ -52,7 +52,7 @@ class EditorToolbar extends StatelessWidget {
           ),
           IconButton(
             onPressed: onClear,
-            tooltip: 'Clear',
+            tooltip: 'All Clear',
             icon: Icon(Icons.delete_outline, size: 20, color: toolbarIconColor),
             style: IconButton.styleFrom(
               shape: const CircleBorder(),

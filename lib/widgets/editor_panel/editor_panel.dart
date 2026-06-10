@@ -5,6 +5,7 @@ import 'package:re_highlight/languages/json.dart';
 import 'package:re_highlight/styles/atom-one-light.dart';
 import '../../models/editor_panel_style.dart';
 import '../../state/editor_state.dart';
+import '../../utils/json_line_finder.dart';
 import '../../utils/json_parser.dart';
 import 'editor_toolbar.dart';
 
@@ -21,6 +22,7 @@ class EditorPanel extends StatefulWidget {
 
 class _EditorPanelState extends State<EditorPanel> {
   late final CodeLineEditingController _controller;
+  late final CodeScrollController _scrollController;
   late final EditorState _editorState;
 
   @override
@@ -28,19 +30,47 @@ class _EditorPanelState extends State<EditorPanel> {
     super.initState();
     _editorState = context.read<EditorState>();
     _controller = CodeLineEditingController.fromText(_editorState.jsonText);
-    _editorState.addListener(_syncController);
+    _scrollController = CodeScrollController();
+    _editorState.addListener(_onStateChanged);
   }
 
-  void _syncController() {
+  // 텍스트 동기화 + 선택 노드 하이라이트 적용
+  void _onStateChanged() {
     if (_controller.text != _editorState.jsonText) {
       _controller.text = _editorState.jsonText;
     }
+    _syncHighlight();
+  }
+
+  // 선택된 노드의 라인 범위를 에디터 selection으로 설정하고 스크롤
+  void _syncHighlight() {
+    final path = _editorState.selectedNodePath;
+    if (path == null || path.isEmpty) return;
+
+    final range = findNodeLineRange(_editorState.jsonText, path);
+    if (range == null) return;
+
+    final (startLine, endLine) = range;
+    final totalLines = _controller.codeLines.length;
+    if (startLine >= totalLines || endLine >= totalLines) return;
+
+    final endLineLength = _controller.codeLines[endLine].length;
+    _controller.selection = CodeLineSelection(
+      baseIndex: startLine,
+      baseOffset: 0,
+      extentIndex: endLine,
+      extentOffset: endLineLength,
+    );
+    _scrollController.makeVisible(
+      CodeLinePosition(index: startLine, offset: 0),
+    );
   }
 
   @override
   void dispose() {
-    _editorState.removeListener(_syncController);
+    _editorState.removeListener(_onStateChanged);
     _controller.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -77,6 +107,7 @@ class _EditorPanelState extends State<EditorPanel> {
                 color: widget.style.codeBackgroundColor,
                 child: CodeEditor(
                   controller: _controller,
+                  scrollController: _scrollController,
                   // 텍스트가 바뀔 때마다 EditorState에 전달 → 실시간 그래프 갱신
                   onChanged: (_) => state.updateText(_controller.text),
                   wordWrap: false, // 긴 줄 자동 줄바꿈 비활성화

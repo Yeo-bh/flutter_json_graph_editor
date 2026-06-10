@@ -14,12 +14,14 @@ class EditorState extends ChangeNotifier {
   String _jsonText = '';
   JsonNode? _rootNode; // 파싱 성공 시 그래프에 표시되는 트리
   String? _error; // 파싱 실패 시 에러 메시지
+  List<String>? _selectedNodePath; // 그래프에서 선택한 노드 path (에디터 하이라이트용)
   final bool collapseChildrenByDefault;
   final bool collapseEntriesByDefault;
 
   String get jsonText => _jsonText;
   JsonNode? get rootNode => _rootNode;
   String? get error => _error;
+  List<String>? get selectedNodePath => _selectedNodePath;
 
   EditorState({
     String? initialJson,
@@ -85,6 +87,12 @@ class EditorState extends ChangeNotifier {
   void renameNodeKey(List<String> nodePath, String newKey) {
     final newText = renameKeyInJson(_jsonText, nodePath, newKey);
     if (newText != null) updateText(newText);
+  }
+
+  // 그래프에서 노드 선택 시 호출 → 에디터가 해당 라인 범위를 하이라이트
+  void selectNode(List<String>? path) {
+    _selectedNodePath = path;
+    notifyListeners();
   }
 
   // 노드를 부모에서 제거하고 JSON을 재생성. 루트는 삭제 불가.
