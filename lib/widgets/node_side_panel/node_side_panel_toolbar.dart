@@ -36,20 +36,36 @@ class NodeSidePanelToolbar extends StatelessWidget {
   }
 
   Future<void> _confirmDelete(BuildContext context) async {
+    final s = style;
+    final buttonStyle = TextStyle(fontFamily: s.fontFamily, fontSize: s.metaValueFontSize);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('노드 삭제'),
-        content: const Text('이 노드와 하위 내용을 모두 삭제할까요?'),
+        backgroundColor: s.backgroundColor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        title: Text(
+          '노드 삭제',
+          style: TextStyle(
+            color: s.titleColor,
+            fontSize: s.titleFontSize,
+            fontWeight: s.titleFontWeight,
+            fontFamily: s.fontFamily,
+          ),
+        ),
+        content: Text(
+          '이 노드와 하위 내용을 모두 삭제할까요?',
+          style: TextStyle(color: s.metaValueColor, fontFamily: s.fontFamily, fontSize: s.metaValueFontSize),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('취소'),
+            style: TextButton.styleFrom(foregroundColor: s.metaLabelColor),
+            child: Text('취소', style: buttonStyle),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('삭제'),
+            child: Text('삭제', style: buttonStyle),
           ),
         ],
       ),
