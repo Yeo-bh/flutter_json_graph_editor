@@ -55,11 +55,7 @@ String? updateEntryInJson(
 // Map의 키 이름 변경. 키 순서 보존을 위해 전체 재구성.
 // 부모가 List면 인덱스라 키 개념이 없으므로 null 반환.
 // 중복 키나 빈 문자열은 조용히 무시.
-String? renameKeyInJson(
-  String jsonText,
-  List<String> nodePath,
-  String newKey,
-) {
+String? renameKeyInJson(String jsonText, List<String> nodePath, String newKey) {
   if (nodePath.isEmpty) return null;
   final oldKey = nodePath.last;
   if (oldKey == newKey || newKey.trim().isEmpty) return null;
@@ -93,6 +89,48 @@ String? renameKeyInJson(
       gp[int.parse(pk)] = rebuilt;
     } else {
       (gp as Map)[pk] = rebuilt;
+    }
+    return const JsonEncoder.withIndent('  ').convert(decoded);
+  } catch (_) {
+    return null;
+  }
+}
+
+// nodePath 노드 내부의 entry 키 이름 변경. 키 순서 보존.
+String? renameEntryKeyInJson(
+  String jsonText,
+  List<String> nodePath,
+  String oldKey,
+  String newKey,
+) {
+  if (oldKey == newKey || newKey.trim().isEmpty) return null;
+  try {
+    final dynamic decoded = jsonDecode(jsonText);
+    dynamic node = decoded;
+    for (final k in nodePath) {
+      node = node is List ? node[int.parse(k)] : node[k];
+    }
+    if (node is! Map) return null;
+    if ((node).containsKey(newKey)) return null;
+
+    final rebuilt = <String, dynamic>{};
+    for (final e in (node as Map<String, dynamic>).entries) {
+      rebuilt[e.key == oldKey ? newKey : e.key] = e.value;
+    }
+
+    if (nodePath.isEmpty) {
+      return const JsonEncoder.withIndent('  ').convert(rebuilt);
+    }
+
+    dynamic parent = decoded;
+    for (final k in nodePath.sublist(0, nodePath.length - 1)) {
+      parent = parent is List ? parent[int.parse(k)] : parent[k];
+    }
+    final lastKey = nodePath.last;
+    if (parent is List) {
+      parent[int.parse(lastKey)] = rebuilt;
+    } else {
+      (parent as Map)[lastKey] = rebuilt;
     }
     return const JsonEncoder.withIndent('  ').convert(decoded);
   } catch (_) {

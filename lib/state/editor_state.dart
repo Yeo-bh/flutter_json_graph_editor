@@ -79,7 +79,12 @@ class EditorState extends ChangeNotifier {
     String navigationKey,
     dynamic newValue,
   ) {
-    final newText = updateEntryInJson(_jsonText, nodePath, navigationKey, newValue);
+    final newText = updateEntryInJson(
+      _jsonText,
+      nodePath,
+      navigationKey,
+      newValue,
+    );
     if (newText != null) updateText(newText);
   }
 
@@ -87,6 +92,17 @@ class EditorState extends ChangeNotifier {
   void renameNodeKey(List<String> nodePath, String newKey) {
     final newText = renameKeyInJson(_jsonText, nodePath, newKey);
     if (newText != null) updateText(newText);
+  }
+
+  // 노드 내부 entry의 키 이름을 변경하고 JSON을 재생성
+  void renameEntryKey(List<String> nodePath, String oldKey, String newKey) {
+    final newText = renameEntryKeyInJson(_jsonText, nodePath, oldKey, newKey);
+    if (newText != null) updateText(newText);
+  }
+
+  // entry 삭제는 부모 nodePath + navigationKey 조합을 deleteNodeAtPath에 위임
+  void deleteEntry(List<String> nodePath, String navigationKey) {
+    deleteNode([...nodePath, navigationKey]);
   }
 
   // 그래프에서 노드 선택 시 호출 → 에디터가 해당 라인 범위를 하이라이트

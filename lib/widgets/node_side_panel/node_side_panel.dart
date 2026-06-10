@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import '../../models/json_node.dart';
 import '../../models/node_detail_style.dart';
 import '../../state/editor_state.dart';
-import '../../utils/json_value_parser.dart';
 import '../../utils/node_finder.dart';
-import 'node_entry_tile.dart';
+import 'node_side_panel_body.dart';
 import 'node_side_panel_header.dart';
 import 'node_side_panel_toolbar.dart';
 
+/// 그래프에서 노드 선택 시 우측에 슬라이드인되는 상세 패널.
+/// 레이블 편집 상태를 관리하고, 본문은 NodeSidePanelBody에 위임한다.
 class NodeSidePanel extends StatefulWidget {
   final JsonNode node;
   final EditorState state;
@@ -28,8 +29,6 @@ class NodeSidePanel extends StatefulWidget {
 
 class _NodeSidePanelState extends State<NodeSidePanel> {
   late List<String> _nodePath;
-  String? _editingKey;
-  TextEditingController? _editController;
   bool _isEditingLabel = false;
   TextEditingController? _labelController;
 
@@ -45,9 +44,6 @@ class _NodeSidePanelState extends State<NodeSidePanel> {
     super.didUpdateWidget(old);
     if (old.node.path.join('/') != widget.node.path.join('/')) {
       _nodePath = widget.node.path;
-      _editingKey = null;
-      _editController?.dispose();
-      _editController = null;
       _isEditingLabel = false;
       _labelController?.dispose();
       _labelController = null;
@@ -59,17 +55,18 @@ class _NodeSidePanelState extends State<NodeSidePanel> {
   @override
   void dispose() {
     widget.state.removeListener(_onStateChanged);
-    _editController?.dispose();
     _labelController?.dispose();
     super.dispose();
   }
 
+  // 노드 path가 바뀌어도 최신 상태를 반영한 노드를 반환
   JsonNode get _node {
     final root = widget.state.rootNode;
     if (root == null) return widget.node;
     return findNodeByPath(root, _nodePath) ?? widget.node;
   }
 
+  // List 인덱스 노드는 키 이름이 없으므로 rename 불가
   bool _canRenameNode(JsonNode node) =>
       node.path.isNotEmpty && int.tryParse(node.path.last) == null;
 
@@ -81,6 +78,7 @@ class _NodeSidePanelState extends State<NodeSidePanel> {
     });
   }
 
+  // _nodePath를 새 키로 갱신해야 노드 선택 상태가 유지됨
   void _saveLabelEdit() {
     final newKey = _labelController?.text.trim() ?? '';
     final oldPath = List<String>.from(_nodePath);
@@ -103,31 +101,11 @@ class _NodeSidePanelState extends State<NodeSidePanel> {
     });
   }
 
-  void _startEdit(NodeEntry entry) {
-    final initial = entry.type == EntryType.string
-        ? entry.displayValue.replaceAll('"', '')
-        : entry.displayValue;
-    setState(() {
-      _editingKey = entry.navigationKey;
-      _editController?.dispose();
-      _editController = TextEditingController(text: initial);
-    });
-  }
-
-  void _saveEdit(NodeEntry entry) {
-    final newValue = parseJsonInput(_editController!.text.trim());
-    widget.state.updateEntryAtPath(_nodePath, entry.navigationKey, newValue);
-    _editingKey = null;
-    _editController?.dispose();
-    _editController = null;
-  }
-
   @override
   Widget build(BuildContext context) {
     final node = _node;
     final s = widget.style;
     return Container(
-      width: s.panelWidth,
       decoration: BoxDecoration(
         color: s.backgroundColor,
         border: Border(left: BorderSide(color: s.dividerColor)),
@@ -158,7 +136,6 @@ class _NodeSidePanelState extends State<NodeSidePanel> {
             jsonText: widget.state.jsonText,
             nodePath: _nodePath,
             style: s,
-            // 루트는 삭제 불가 (path가 비어있음)
             onDelete: _nodePath.isNotEmpty
                 ? () {
                     widget.state.deleteNode(_nodePath);
@@ -168,77 +145,12 @@ class _NodeSidePanelState extends State<NodeSidePanel> {
           ),
           Divider(height: 1, color: s.dividerColor),
           Expanded(
-            child: SingleChildScrollView(
-              padding: s.bodyPadding,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _metaRow('Type', node.isArray ? 'Array' : 'Object'),
-                  if (node.children.isNotEmpty)
-                    _metaRow('Children', '${node.children.length}'),
-                  if (node.entries.isNotEmpty) ...[
-                    const SizedBox(height: 12),
-                    _propertiesLabel(s),
-                    const SizedBox(height: 8),
-                    ...node.entries.map(
-                      (entry) => NodeEntryTile(
-                        entry: entry,
-                        isEditing: _editingKey == entry.navigationKey,
-                        editController: _editingKey == entry.navigationKey
-                            ? _editController
-                            : null,
-                        onStartEdit: () => _startEdit(entry),
-                        onSaveEdit: () => _saveEdit(entry),
-                        style: s,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _propertiesLabel(NodeDetailStyle s) {
-    return Text(
-      'Properties',
-      style: TextStyle(
-        color: s.propertiesLabelColor,
-        fontSize: s.propertiesLabelFontSize,
-        fontWeight: s.propertiesLabelFontWeight,
-        letterSpacing: s.propertiesLabelLetterSpacing,
-      ),
-    );
-  }
-
-  Widget _metaRow(String label, String value) {
-    final s = widget.style;
-    return Padding(
-      padding: EdgeInsets.only(bottom: s.metaRowBottomPadding),
-      child: Row(
-        children: [
-          SizedBox(
-            width: s.metaLabelWidth,
-            child: Text(
-              label,
-              style: TextStyle(
-                color: s.metaLabelColor,
-                fontSize: s.metaLabelFontSize,
-                fontFamily: s.fontFamily,
-              ),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              value,
-              style: TextStyle(
-                color: s.metaValueColor,
-                fontSize: s.metaValueFontSize,
-                fontFamily: s.fontFamily,
-              ),
+            child: NodeSidePanelBody(
+              key: ValueKey(_nodePath.join('/')),
+              node: node,
+              nodePath: _nodePath,
+              state: widget.state,
+              style: s,
             ),
           ),
         ],

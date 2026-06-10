@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import '../../models/json_node.dart';
 import '../../models/node_detail_style.dart';
 
+/// 사이드 패널 상단 헤더.
+/// 노드 타입 배지([ ] / { }), 레이블(더블클릭 편집), 닫기 버튼으로 구성된다.
 class NodeSidePanelHeader extends StatelessWidget {
   final JsonNode node;
   final NodeDetailStyle style;
   final bool isEditingLabel;
   final TextEditingController? labelController;
   final VoidCallback onClose;
+  /// null이면 편집 불가(List 인덱스 노드)
   final VoidCallback? onStartEdit;
   final VoidCallback onSaveEdit;
   final VoidCallback onCancelEdit;
