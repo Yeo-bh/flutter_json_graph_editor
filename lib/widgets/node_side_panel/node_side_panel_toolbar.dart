@@ -37,7 +37,10 @@ class NodeSidePanelToolbar extends StatelessWidget {
 
   Future<void> _confirmDelete(BuildContext context) async {
     final s = style;
-    final buttonStyle = TextStyle(fontFamily: s.fontFamily, fontSize: s.metaValueFontSize);
+    final buttonStyle = TextStyle(
+      fontFamily: s.fontFamily,
+      fontSize: s.metaValueFontSize,
+    );
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -54,7 +57,11 @@ class NodeSidePanelToolbar extends StatelessWidget {
         ),
         content: Text(
           '이 노드와 하위 내용을 모두 삭제할까요?',
-          style: TextStyle(color: s.metaValueColor, fontFamily: s.fontFamily, fontSize: s.metaValueFontSize),
+          style: TextStyle(
+            color: s.metaValueColor,
+            fontFamily: s.fontFamily,
+            fontSize: s.metaValueFontSize,
+          ),
         ),
         actions: [
           TextButton(
@@ -82,24 +89,27 @@ class NodeSidePanelToolbar extends StatelessWidget {
         children: [
           IconButton(
             onPressed: _copyNodeJson,
-            icon: Icon(Icons.content_copy, size: 16, color: s.metaLabelColor),
+            icon: Icon(Icons.content_copy, size: 20, color: s.metaLabelColor),
             tooltip: 'Copy JSON',
-            padding: const EdgeInsets.all(4),
-            constraints: const BoxConstraints(),
-            visualDensity: VisualDensity.compact,
+            style: IconButton.styleFrom(
+              shape: const CircleBorder(),
+              padding: const EdgeInsets.all(8),
+            ),
           ),
-          const SizedBox(width: 4),
           IconButton(
             onPressed: onDelete != null ? () => _confirmDelete(context) : null,
             icon: Icon(
               Icons.delete_outline,
-              size: 16,
-              color: onDelete != null ? Colors.red : s.metaLabelColor.withValues(alpha: 0.3),
+              size: 20,
+              color: onDelete != null
+                  ? Colors.red
+                  : s.metaLabelColor.withValues(alpha: 0.3),
             ),
             tooltip: '노드 삭제',
-            padding: const EdgeInsets.all(4),
-            constraints: const BoxConstraints(),
-            visualDensity: VisualDensity.compact,
+            style: IconButton.styleFrom(
+              shape: const CircleBorder(),
+              padding: const EdgeInsets.all(8),
+            ),
           ),
         ],
       ),
