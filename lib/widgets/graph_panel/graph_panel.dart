@@ -54,7 +54,7 @@ class _GraphPanelState extends State<GraphPanel> {
 
   bool _searchActive = false;
   String _searchQuery = '';
-  SearchMode _searchMode = SearchMode.key;
+  SearchMode _searchMode = SearchMode.all;
   SearchResult _searchResult = SearchResult.empty;
 
   void _openPanel(JsonNode node) {
@@ -188,6 +188,7 @@ class _GraphPanelState extends State<GraphPanel> {
                   selectedNode: _selectedNode,
                   onClosePanel: _closePanel,
                   matchedNodeIds: _searchResult.highlightedIds,
+                  searchQuery: _searchQuery.isEmpty ? null : _searchQuery,
                 );
               },
             ),

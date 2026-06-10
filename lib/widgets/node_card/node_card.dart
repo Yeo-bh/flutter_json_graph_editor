@@ -10,6 +10,7 @@ class NodeCard extends StatelessWidget {
   final JsonNode node;
   final bool isSelected;
   final bool isMatched; // 검색 결과 하이라이트
+  final String? highlightQuery; // entry 행 하이라이트용 검색어
   final VoidCallback onToggleCollapse; // 헤더의 ‹/› 버튼 클릭 시 호출
   final VoidCallback onToggleEntriesCollapse; // 헤더 클릭 시 호출
   final VoidCallback? onShowDetail; // 카드 클릭 시 호출 (사이드 패널 열기)
@@ -23,6 +24,7 @@ class NodeCard extends StatelessWidget {
     this.onShowDetail,
     this.isSelected = false,
     this.isMatched = false,
+    this.highlightQuery,
     this.style = const NodeCardStyle(),
   });
 
@@ -93,9 +95,19 @@ class NodeCard extends StatelessWidget {
                         : SystemMouseCursors.basic,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
-                      children: node.entries
-                          .map((e) => NodeCardEntryRow(entry: e, style: style))
-                          .toList(),
+                      children: node.entries.map((e) {
+                            final q = isMatched && highlightQuery != null
+                                ? highlightQuery!.toLowerCase()
+                                : null;
+                            final entryMatched = q != null &&
+                                (e.key.toLowerCase().contains(q) ||
+                                    e.displayValue.toLowerCase().contains(q));
+                            return NodeCardEntryRow(
+                              entry: e,
+                              style: style,
+                              isMatched: entryMatched,
+                            );
+                          }).toList(),
                     ),
                   ),
                 ),

@@ -21,6 +21,7 @@ class GraphView extends StatelessWidget {
   final JsonNode? selectedNode;
   final VoidCallback? onClosePanel;
   final Set<String> matchedNodeIds;
+  final String? searchQuery;
 
   const GraphView({
     super.key,
@@ -34,6 +35,7 @@ class GraphView extends StatelessWidget {
     this.selectedNode,
     this.onClosePanel,
     this.matchedNodeIds = const {},
+    this.searchQuery,
   });
 
   @override
@@ -91,6 +93,7 @@ class GraphView extends StatelessWidget {
               node: node,
               isSelected: selectedNode?.id == node.id,
               isMatched: matchedNodeIds.contains(node.id),
+              highlightQuery: searchQuery,
               onToggleCollapse: () => state.toggleCollapse(node.id),
               onToggleEntriesCollapse: () =>
                   state.toggleEntriesCollapse(node.id),

@@ -6,8 +6,14 @@ import '../../models/node_card_style.dart';
 class NodeCardEntryRow extends StatelessWidget {
   final NodeEntry entry;
   final NodeCardStyle style;
+  final bool isMatched;
 
-  const NodeCardEntryRow({super.key, required this.entry, required this.style});
+  const NodeCardEntryRow({
+    super.key,
+    required this.entry,
+    required this.style,
+    this.isMatched = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +21,7 @@ class NodeCardEntryRow extends StatelessWidget {
       height: style.entryHeight,
       padding: EdgeInsets.symmetric(horizontal: style.entryPaddingHorizontal),
       decoration: BoxDecoration(
-        // 각 행 위에 얇은 구분선
+        color: isMatched ? const Color(0xFFFFF3CD) : null,
         border: Border(top: BorderSide(color: style.entryDividerColor)),
       ),
       child: Row(
