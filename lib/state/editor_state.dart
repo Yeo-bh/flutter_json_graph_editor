@@ -28,7 +28,8 @@ class EditorState extends ChangeNotifier {
     this.collapseChildrenByDefault = true,
     this.collapseEntriesByDefault = true,
   }) {
-    final json = initialJson ?? kDefaultJson;
+    final raw = initialJson ?? kDefaultJson;
+    final json = formatJson(raw) ?? raw;
     _jsonText = json;
     _parse(json);
   }
