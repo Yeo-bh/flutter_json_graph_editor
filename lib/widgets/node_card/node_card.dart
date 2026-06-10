@@ -9,6 +9,7 @@ import 'node_card_header.dart';
 class NodeCard extends StatelessWidget {
   final JsonNode node;
   final bool isSelected;
+  final bool isMatched; // 검색 결과 하이라이트
   final VoidCallback onToggleCollapse; // 헤더의 ‹/› 버튼 클릭 시 호출
   final VoidCallback onToggleEntriesCollapse; // 헤더 클릭 시 호출
   final VoidCallback? onShowDetail; // 카드 클릭 시 호출 (사이드 패널 열기)
@@ -21,6 +22,7 @@ class NodeCard extends StatelessWidget {
     required this.onToggleEntriesCollapse,
     this.onShowDetail,
     this.isSelected = false,
+    this.isMatched = false,
     this.style = const NodeCardStyle(),
   });
 
@@ -39,13 +41,23 @@ class NodeCard extends StatelessWidget {
           color: style.backgroundColor,
           borderRadius: BorderRadius.circular(style.borderRadius),
           border: Border.all(
-            color: isSelected ? style.selectedBorderColor : style.borderColor,
+            color: isSelected
+                ? style.selectedBorderColor
+                : isMatched
+                    ? const Color(0xFFF5A623)
+                    : style.borderColor,
             width: style.borderWidth,
           ),
           boxShadow: [
             if (isSelected)
               BoxShadow(
                 color: style.selectedBorderColor.withValues(alpha: 0.3),
+                blurRadius: 0,
+                spreadRadius: 2,
+              )
+            else if (isMatched)
+              const BoxShadow(
+                color: Color(0x40F5A623),
                 blurRadius: 0,
                 spreadRadius: 2,
               )

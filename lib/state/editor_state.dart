@@ -51,6 +51,31 @@ class EditorState extends ChangeNotifier {
     }
   }
 
+  // 검색 결과 자동 확장: 조상 노드 펼치고, 직접 매칭 노드는 entries도 펼침
+  void expandNodes({
+    required Set<String> highlightedIds,
+    required Set<String> matchedIds,
+  }) {
+    if (_rootNode == null || highlightedIds.isEmpty) return;
+    _expandRecursive(_rootNode!, highlightedIds, matchedIds);
+    layoutTree(_rootNode!);
+    notifyListeners();
+  }
+
+  void _expandRecursive(
+    JsonNode node,
+    Set<String> highlightedIds,
+    Set<String> matchedIds,
+  ) {
+    if (highlightedIds.contains(node.id)) {
+      node.isCollapsed = false;
+      if (matchedIds.contains(node.id)) node.isEntriesCollapsed = false;
+    }
+    for (final child in node.children) {
+      _expandRecursive(child, highlightedIds, matchedIds);
+    }
+  }
+
   // 카드 내부 entries 접기/펼치기
   void toggleEntriesCollapse(String nodeId) {
     if (_rootNode == null) return;

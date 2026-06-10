@@ -9,6 +9,8 @@ import '../../models/node_card_style.dart';
 import '../../models/node_detail_style.dart';
 import '../../state/editor_state.dart';
 import '../../utils/graph_transform.dart';
+import '../../utils/node_searcher.dart';
+import '../graph_toolbar/graph_search_bar.dart';
 import '../graph_toolbar/graph_toolbar.dart';
 import '../node_side_panel/node_side_panel.dart';
 import 'graph_view.dart';
@@ -50,6 +52,11 @@ class _GraphPanelState extends State<GraphPanel> {
   final _transform = TransformationController();
   JsonNode? _selectedNode; // 사이드 패널에 표시할 노드 (null이면 패널 닫힘)
 
+  bool _searchActive = false;
+  String _searchQuery = '';
+  SearchMode _searchMode = SearchMode.key;
+  SearchResult _searchResult = SearchResult.empty;
+
   void _openPanel(JsonNode node) {
     setState(() => _selectedNode = node);
     context.read<EditorState>().selectNode(node.path);
@@ -59,6 +66,43 @@ class _GraphPanelState extends State<GraphPanel> {
     setState(() => _selectedNode = null);
     context.read<EditorState>().selectNode(null);
   }
+
+  void _toggleSearch() {
+    setState(() {
+      _searchActive = !_searchActive;
+      if (!_searchActive) {
+        _searchQuery = '';
+        _searchResult = SearchResult.empty;
+      }
+    });
+  }
+
+  void _onQueryChanged(String query, JsonNode? root, EditorState state) {
+    final result = searchNodes(root ?? _dummyRoot, query, _searchMode);
+    state.expandNodes(
+      highlightedIds: result.highlightedIds,
+      matchedIds: result.matchedIds,
+    );
+    setState(() {
+      _searchQuery = query;
+      _searchResult = result;
+    });
+  }
+
+  void _onModeChanged(SearchMode mode, JsonNode? root, EditorState state) {
+    final result = searchNodes(root ?? _dummyRoot, _searchQuery, mode);
+    state.expandNodes(
+      highlightedIds: result.highlightedIds,
+      matchedIds: result.matchedIds,
+    );
+    setState(() {
+      _searchMode = mode;
+      _searchResult = result;
+    });
+  }
+
+  // 루트가 null일 때 searchNodes 호출 방지용
+  static final _dummyRoot = JsonNode(id: '', label: '');
 
   @override
   void dispose() {
@@ -143,6 +187,7 @@ class _GraphPanelState extends State<GraphPanel> {
                   onShowDetail: _openPanel,
                   selectedNode: _selectedNode,
                   onClosePanel: _closePanel,
+                  matchedNodeIds: _searchResult.highlightedIds,
                 );
               },
             ),
@@ -167,22 +212,43 @@ class _GraphPanelState extends State<GraphPanel> {
                     )
                   : const SizedBox.shrink(),
             ),
-            // 하단 중앙 툴바 오버레이
+            // 하단 중앙 툴바 오버레이 (검색 바 + 툴바)
             Positioned(
               bottom: 16,
               left: 0,
               right: 0,
               child: Center(
-                child: GraphToolbar(
-                  onZoomIn: () => _scaleBy(1.25, viewport),
-                  onZoomOut: () => _scaleBy(0.8, viewport),
-                  onFit: () => _fitToView(
-                    viewport,
-                    context.read<EditorState>().rootNode,
+                child: Consumer<EditorState>(
+                  builder: (context, state, _) => Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (_searchActive) ...[
+                        GraphSearchBar(
+                          mode: _searchMode,
+                          matchCount: _searchResult.matchedIds.length,
+                          onQueryChanged: (q) =>
+                              _onQueryChanged(q, state.rootNode, state),
+                          onModeChanged: (m) =>
+                              _onModeChanged(m, state.rootNode, state),
+                          onClose: _toggleSearch,
+                        ),
+                        const SizedBox(height: 8),
+                      ],
+                      GraphToolbar(
+                        onZoomIn: () => _scaleBy(1.25, viewport),
+                        onZoomOut: () => _scaleBy(0.8, viewport),
+                        onFit: () => _fitToView(
+                          viewport,
+                          state.rootNode,
+                        ),
+                        onToggleEditorPanel: widget.onToggleEditorPanel,
+                        onToggleSearch: _toggleSearch,
+                        searchActive: _searchActive,
+                        extraActions: widget.extraActions,
+                        style: widget.toolbarStyle,
+                      ),
+                    ],
                   ),
-                  onToggleEditorPanel: widget.onToggleEditorPanel,
-                  extraActions: widget.extraActions,
-                  style: widget.toolbarStyle,
                 ),
               ),
             ),

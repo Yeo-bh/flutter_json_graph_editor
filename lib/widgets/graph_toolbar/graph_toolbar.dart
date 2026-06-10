@@ -28,6 +28,12 @@ class GraphToolbar extends StatelessWidget {
   /// 에디터 패널 접기/펼치기 콜백. null이면 버튼 미표시.
   final VoidCallback? onToggleEditorPanel;
 
+  /// 검색 토글 콜백. null이면 버튼 미표시.
+  final VoidCallback? onToggleSearch;
+
+  /// 검색 활성 여부 (검색 버튼 강조 표시에 사용)
+  final bool searchActive;
+
   /// 사용자 정의 버튼 목록. 기본 줌 버튼 오른쪽에 구분선과 함께 추가됨
   final List<GraphToolbarAction> extraActions;
 
@@ -39,6 +45,8 @@ class GraphToolbar extends StatelessWidget {
     required this.onZoomOut,
     required this.onFit,
     this.onToggleEditorPanel,
+    this.onToggleSearch,
+    this.searchActive = false,
     this.extraActions = const [],
     this.style = const GraphToolbarStyle(),
   });
@@ -115,6 +123,20 @@ class GraphToolbar extends StatelessWidget {
                 buttonPadding: style.buttonPadding,
                 borderRadius: style.borderRadius,
               ),
+            ),
+          ],
+          if (onToggleSearch != null) ...[
+            _vDivider(),
+            _ToolbarBtn(
+              icon: Icons.search,
+              tooltip: '검색',
+              onTap: onToggleSearch!,
+              iconColor: searchActive
+                  ? const Color(0xFF0366D6)
+                  : style.iconColor,
+              iconSize: style.iconSize,
+              buttonPadding: style.buttonPadding,
+              borderRadius: style.borderRadius,
             ),
           ],
         ],
