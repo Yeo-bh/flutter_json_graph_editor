@@ -42,7 +42,6 @@ class _EditorPanelState extends State<EditorPanel> {
     _syncHighlight();
   }
 
-  // 선택된 노드의 라인 범위를 에디터 selection으로 설정하고 스크롤
   void _syncHighlight() {
     final path = _editorState.selectedNodePath;
     if (path == null || path.isEmpty) return;
@@ -50,17 +49,10 @@ class _EditorPanelState extends State<EditorPanel> {
     final range = findNodeLineRange(_editorState.jsonText, path);
     if (range == null) return;
 
-    final (startLine, endLine) = range;
+    final (startLine, _) = range;
     final totalLines = _controller.codeLines.length;
-    if (startLine >= totalLines || endLine >= totalLines) return;
+    if (startLine >= totalLines) return;
 
-    final endLineLength = _controller.codeLines[endLine].length;
-    _controller.selection = CodeLineSelection(
-      baseIndex: startLine,
-      baseOffset: 0,
-      extentIndex: endLine,
-      extentOffset: endLineLength,
-    );
     _scrollController.makeVisible(
       CodeLinePosition(index: startLine, offset: 0),
     );
@@ -123,10 +115,14 @@ class _EditorPanelState extends State<EditorPanel> {
                     selectionColor: widget.style.selectionColor, // 텍스트 선택 배경색
                     cursorLineColor:
                         widget.style.cursorLineColor, // 현재 커서 줄 하이라이트
-                    codeTheme: widget.style.codeTheme ?? CodeHighlightTheme(
-                    languages: {'json': CodeHighlightThemeMode(mode: langJson)},
-                    theme: atomOneLightTheme,
-                  ),
+                    codeTheme:
+                        widget.style.codeTheme ??
+                        CodeHighlightTheme(
+                          languages: {
+                            'json': CodeHighlightThemeMode(mode: langJson),
+                          },
+                          theme: atomOneLightTheme,
+                        ),
                   ),
                   // indicatorBuilder: 에디터 왼쪽에 라인 번호 영역을 커스텀으로 구성
                   indicatorBuilder:
