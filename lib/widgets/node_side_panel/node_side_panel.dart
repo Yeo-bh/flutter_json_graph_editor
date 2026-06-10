@@ -154,11 +154,17 @@ class _NodeSidePanelState extends State<NodeSidePanel> {
             onSaveEdit: _saveLabelEdit,
             onCancelEdit: _cancelLabelEdit,
           ),
-          Divider(height: 1, color: s.dividerColor),
           NodeSidePanelToolbar(
             jsonText: widget.state.jsonText,
             nodePath: _nodePath,
             style: s,
+            // 루트는 삭제 불가 (path가 비어있음)
+            onDelete: _nodePath.isNotEmpty
+                ? () {
+                    widget.state.deleteNode(_nodePath);
+                    widget.onClose();
+                  }
+                : null,
           ),
           Divider(height: 1, color: s.dividerColor),
           Expanded(

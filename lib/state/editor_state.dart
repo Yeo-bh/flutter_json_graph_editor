@@ -87,6 +87,12 @@ class EditorState extends ChangeNotifier {
     if (newText != null) updateText(newText);
   }
 
+  // 노드를 부모에서 제거하고 JSON을 재생성. 루트는 삭제 불가.
+  void deleteNode(List<String> nodePath) {
+    final newText = deleteNodeAtPath(_jsonText, nodePath);
+    if (newText != null) updateText(newText);
+  }
+
   void _parse(String text) {
     if (text.trim().isEmpty) {
       _rootNode = null;

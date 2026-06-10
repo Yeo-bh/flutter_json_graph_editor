@@ -99,3 +99,26 @@ String? renameKeyInJson(
     return null;
   }
 }
+
+// nodePath의 대상 노드를 부모에서 제거. 루트(빈 path)는 삭제 불가.
+String? deleteNodeAtPath(String jsonText, List<String> nodePath) {
+  if (nodePath.isEmpty) return null;
+  try {
+    final dynamic decoded = jsonDecode(jsonText);
+    final parentPath = nodePath.sublist(0, nodePath.length - 1);
+
+    dynamic parent = decoded;
+    for (final k in parentPath) {
+      parent = parent is List ? parent[int.parse(k)] : parent[k];
+    }
+    final lastKey = nodePath.last;
+    if (parent is Map) {
+      parent.remove(lastKey);
+    } else if (parent is List) {
+      parent.removeAt(int.parse(lastKey));
+    }
+    return const JsonEncoder.withIndent('  ').convert(decoded);
+  } catch (_) {
+    return null;
+  }
+}

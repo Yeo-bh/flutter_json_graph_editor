@@ -9,12 +9,14 @@ class NodeSidePanelToolbar extends StatelessWidget {
   final String jsonText;
   final List<String> nodePath;
   final NodeDetailStyle style;
+  final VoidCallback? onDelete; // null이면 삭제 버튼 비활성 (루트 노드)
 
   const NodeSidePanelToolbar({
     super.key,
     required this.jsonText,
     required this.nodePath,
     required this.style,
+    this.onDelete,
   });
 
   // nodePath 기준으로 JSON 서브트리를 추출해 클립보드에 복사
@@ -33,27 +35,55 @@ class NodeSidePanelToolbar extends StatelessWidget {
     } catch (_) {}
   }
 
+  Future<void> _confirmDelete(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('노드 삭제'),
+        content: const Text('이 노드와 하위 내용을 모두 삭제할까요?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('취소'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('삭제'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) onDelete?.call();
+  }
+
   @override
   Widget build(BuildContext context) {
     final s = style;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       child: Row(
         children: [
-          TextButton.icon(
+          IconButton(
             onPressed: _copyNodeJson,
-            icon: const Icon(Icons.content_copy, size: 14),
-            label: const Text('Copy'),
-            style: TextButton.styleFrom(
-              foregroundColor: s.metaLabelColor,
-              textStyle: TextStyle(
-                fontSize: s.metaLabelFontSize,
-                fontFamily: s.fontFamily,
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              minimumSize: Size.zero,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            icon: Icon(Icons.content_copy, size: 16, color: s.metaLabelColor),
+            tooltip: 'Copy JSON',
+            padding: const EdgeInsets.all(4),
+            constraints: const BoxConstraints(),
+            visualDensity: VisualDensity.compact,
+          ),
+          const SizedBox(width: 4),
+          IconButton(
+            onPressed: onDelete != null ? () => _confirmDelete(context) : null,
+            icon: Icon(
+              Icons.delete_outline,
+              size: 16,
+              color: onDelete != null ? Colors.red : s.metaLabelColor.withValues(alpha: 0.3),
             ),
+            tooltip: '노드 삭제',
+            padding: const EdgeInsets.all(4),
+            constraints: const BoxConstraints(),
+            visualDensity: VisualDensity.compact,
           ),
         ],
       ),
