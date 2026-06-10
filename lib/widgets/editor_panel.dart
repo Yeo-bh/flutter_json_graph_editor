@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:re_editor/re_editor.dart';
+import 'package:re_highlight/languages/json.dart';
+import 'package:re_highlight/styles/atom-one-light.dart';
 import '../models/editor_panel_style.dart';
 import '../state/editor_state.dart';
 import '../utils/json_parser.dart';
@@ -89,7 +91,10 @@ class _EditorPanelState extends State<EditorPanel> {
                     selectionColor: widget.style.selectionColor, // 텍스트 선택 배경색
                     cursorLineColor:
                         widget.style.cursorLineColor, // 현재 커서 줄 하이라이트
-                    codeTheme: widget.style.codeTheme,
+                    codeTheme: widget.style.codeTheme ?? CodeHighlightTheme(
+                    languages: {'json': CodeHighlightThemeMode(mode: langJson)},
+                    theme: atomOneLightTheme,
+                  ),
                   ),
                   // indicatorBuilder: 에디터 왼쪽에 라인 번호 영역을 커스텀으로 구성
                   indicatorBuilder:
