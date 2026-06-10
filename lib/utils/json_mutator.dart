@@ -1,8 +1,10 @@
 import 'dart:convert';
 
-/// Pure JSON mutation helpers. Each function returns new formatted JSON text,
-/// or null if the operation fails or is a no-op.
+/// JSON 텍스트에 대한 순수 뮤테이션 함수 모음.
+/// 각 함수는 성공 시 새 JSON 문자열, 실패(경로 오류·타입 불일치)시 null 반환.
+/// EditorState가 null 체크 후 updateText() 호출하는 패턴으로 사용.
 
+// 노드 경로 끝 대상에 자식 추가 (Map이면 key 필수, List면 key 무시하고 append)
 String? addChildToJson(
   String jsonText,
   List<String> nodePath,
@@ -26,6 +28,7 @@ String? addChildToJson(
   }
 }
 
+// nodePath로 탐색한 Map/List에서 navigationKey에 해당하는 primitive 값 교체
 String? updateEntryInJson(
   String jsonText,
   List<String> nodePath,
@@ -49,6 +52,9 @@ String? updateEntryInJson(
   }
 }
 
+// Map의 키 이름 변경. 키 순서 보존을 위해 전체 재구성.
+// 부모가 List면 인덱스라 키 개념이 없으므로 null 반환.
+// 중복 키나 빈 문자열은 조용히 무시.
 String? renameKeyInJson(
   String jsonText,
   List<String> nodePath,
@@ -68,6 +74,7 @@ String? renameKeyInJson(
     if (parent is! Map) return null;
     if (parent.containsKey(newKey)) return null;
 
+    // 기존 순서 유지하며 키만 교체
     final rebuilt = <String, dynamic>{};
     for (final e in (parent as Map<String, dynamic>).entries) {
       rebuilt[e.key == oldKey ? newKey : e.key] = e.value;

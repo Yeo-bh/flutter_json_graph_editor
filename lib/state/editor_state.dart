@@ -7,10 +7,13 @@ import '../utils/json_parser.dart';
 import '../utils/node_finder.dart';
 import '../utils/tree_layout.dart';
 
+// 앱 전체 상태를 관리하는 클래스 (Provider로 위젯 트리에 공유)
+// ChangeNotifier: 상태가 바뀔 때 notifyListeners() 호출 → 구독 위젯 리빌드
+// JSON 뮤테이션/탐색/collapse 로직은 utils로 위임, 이 클래스는 조율만 담당
 class EditorState extends ChangeNotifier {
   String _jsonText = '';
-  JsonNode? _rootNode;
-  String? _error;
+  JsonNode? _rootNode; // 파싱 성공 시 그래프에 표시되는 트리
+  String? _error; // 파싱 실패 시 에러 메시지
   final bool collapseChildrenByDefault;
   final bool collapseEntriesByDefault;
 
@@ -28,12 +31,14 @@ class EditorState extends ChangeNotifier {
     _parse(json);
   }
 
+  // 에디터 텍스트가 바뀔 때마다 호출 (실시간 파싱)
   void updateText(String text) {
     _jsonText = text;
     _parse(text);
     notifyListeners();
   }
 
+  // 노드 카드의 접기/펼치기 버튼 클릭 시 호출
   void toggleCollapse(String nodeId) {
     if (_rootNode == null) return;
     final node = findNodeById(_rootNode!, nodeId);
@@ -44,6 +49,7 @@ class EditorState extends ChangeNotifier {
     }
   }
 
+  // 카드 내부 entries 접기/펼치기
   void toggleEntriesCollapse(String nodeId) {
     if (_rootNode == null) return;
     final node = findNodeById(_rootNode!, nodeId);
@@ -54,6 +60,8 @@ class EditorState extends ChangeNotifier {
     }
   }
 
+  // 노드 경로에 새 key-value 추가 (primitive → entry, object/array → child 노드)
+  // key가 null이면 배열에 append
   void addChildToNode(
     List<String> nodePath,
     String? key,
@@ -63,6 +71,7 @@ class EditorState extends ChangeNotifier {
     if (newText != null) updateText(newText);
   }
 
+  // 특정 노드의 entry 값을 수정하고 JSON 텍스트를 재생성
   void updateEntryAtPath(
     List<String> nodePath,
     String navigationKey,
@@ -72,6 +81,7 @@ class EditorState extends ChangeNotifier {
     if (newText != null) updateText(newText);
   }
 
+  // 노드의 키를 변경하고 JSON을 재생성
   void renameNodeKey(List<String> nodePath, String newKey) {
     final newText = renameKeyInJson(_jsonText, nodePath, newKey);
     if (newText != null) updateText(newText);
@@ -84,6 +94,7 @@ class EditorState extends ChangeNotifier {
       return;
     }
 
+    // 재파싱 전 사용자가 변경한 collapse 상태를 path 키로 스냅샷
     final snapshot = <String, ({bool isCollapsed, bool isEntriesCollapsed})>{};
     if (_rootNode != null) snapshotCollapse(_rootNode!, snapshot);
 

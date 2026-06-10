@@ -69,6 +69,9 @@ class _NodeSidePanelState extends State<NodeSidePanel> {
     return findNodeByPath(root, _nodePath) ?? widget.node;
   }
 
+  bool _canRenameNode(JsonNode node) =>
+      node.path.isNotEmpty && int.tryParse(node.path.last) == null;
+
   void _startLabelEdit(JsonNode node) {
     setState(() {
       _isEditingLabel = true;
@@ -144,7 +147,9 @@ class _NodeSidePanelState extends State<NodeSidePanel> {
             isEditingLabel: _isEditingLabel,
             labelController: _labelController,
             onClose: widget.onClose,
-            onStartEdit: node.path.isNotEmpty ? () => _startLabelEdit(node) : null,
+            onStartEdit: _canRenameNode(node)
+                ? () => _startLabelEdit(node)
+                : null,
             onSaveEdit: _saveLabelEdit,
             onCancelEdit: _cancelLabelEdit,
           ),
