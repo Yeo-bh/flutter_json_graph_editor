@@ -40,22 +40,23 @@ class EditorToolbar extends StatelessWidget {
           IconButton(
             onPressed: onFormat,
             tooltip: 'Format JSON',
-            icon: const Icon(Icons.format_align_left),
-            color: toolbarIconColor,
-            iconSize: 17,
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints.tightFor(width: 32, height: 32),
-          ),
-          TextButton(
-            onPressed: onClear,
-            style: TextButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              minimumSize: Size.zero,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            icon: Icon(
+              Icons.format_align_left,
+              size: 20,
+              color: toolbarIconColor,
             ),
-            child: Text(
-              'Clear',
-              style: TextStyle(color: toolbarIconColor, fontSize: 12),
+            style: IconButton.styleFrom(
+              shape: const CircleBorder(),
+              padding: const EdgeInsets.all(8),
+            ),
+          ),
+          IconButton(
+            onPressed: onClear,
+            tooltip: 'Clear',
+            icon: Icon(Icons.delete_outline, size: 20, color: toolbarIconColor),
+            style: IconButton.styleFrom(
+              shape: const CircleBorder(),
+              padding: const EdgeInsets.all(8),
             ),
           ),
         ],
