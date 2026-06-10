@@ -6,6 +6,7 @@ import '../../utils/json_value_parser.dart';
 import '../../utils/node_finder.dart';
 import 'node_entry_tile.dart';
 import 'node_side_panel_header.dart';
+import 'node_side_panel_toolbar.dart';
 
 class NodeSidePanel extends StatefulWidget {
   final JsonNode node;
@@ -152,6 +153,12 @@ class _NodeSidePanelState extends State<NodeSidePanel> {
                 : null,
             onSaveEdit: _saveLabelEdit,
             onCancelEdit: _cancelLabelEdit,
+          ),
+          Divider(height: 1, color: s.dividerColor),
+          NodeSidePanelToolbar(
+            jsonText: widget.state.jsonText,
+            nodePath: _nodePath,
+            style: s,
           ),
           Divider(height: 1, color: s.dividerColor),
           Expanded(
