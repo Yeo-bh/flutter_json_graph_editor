@@ -205,6 +205,50 @@ class EditorState extends ChangeNotifier {
     }
   }
 
+  // 노드의 키를 변경하고 JSON을 재생성.
+  // nodePath: 변경할 노드의 경로 (JsonNode.path). 비어있으면 루트라 불가.
+  // newKey: 새 키 이름. 중복이거나 부모가 배열이면 조용히 무시.
+  void renameNodeKey(List<String> nodePath, String newKey) {
+    if (nodePath.isEmpty) return;
+    final oldKey = nodePath.last;
+    if (oldKey == newKey || newKey.trim().isEmpty) return;
+    try {
+      final dynamic decoded = jsonDecode(_jsonText);
+      final parentPath = nodePath.sublist(0, nodePath.length - 1);
+
+      dynamic parent = decoded;
+      for (final k in parentPath) {
+        parent = parent is List ? parent[int.parse(k)] : parent[k];
+      }
+      if (parent is! Map) return;
+      if (parent.containsKey(newKey)) return;
+
+      // 키 순서 보존하며 재구성
+      final rebuilt = <String, dynamic>{};
+      for (final e in (parent as Map<String, dynamic>).entries) {
+        rebuilt[e.key == oldKey ? newKey : e.key] = e.value;
+      }
+
+      dynamic newDecoded;
+      if (parentPath.isEmpty) {
+        newDecoded = rebuilt;
+      } else {
+        dynamic gp = decoded;
+        for (final k in parentPath.sublist(0, parentPath.length - 1)) {
+          gp = gp is List ? gp[int.parse(k)] : gp[k];
+        }
+        final pk = parentPath.last;
+        if (gp is List) {
+          gp[int.parse(pk)] = rebuilt;
+        } else {
+          (gp as Map)[pk] = rebuilt;
+        }
+        newDecoded = decoded;
+      }
+      updateText(const JsonEncoder.withIndent('  ').convert(newDecoded));
+    } catch (_) {}
+  }
+
   void _parse(String text) {
     if (text.trim().isEmpty) {
       _rootNode = null;

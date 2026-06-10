@@ -136,17 +136,10 @@ class _GraphPanelState extends State<GraphPanel> {
                   addChildDialogStyle: widget.addChildDialogStyle,
                   onShowDetail: _openPanel,
                   selectedNode: _selectedNode,
+                  onClosePanel: _closePanel,
                 );
               },
             ),
-            // 사이드 패널 열려있을 때 그래프 영역 탭 → 패널 닫기
-            if (_selectedNode != null)
-              Positioned.fill(
-                child: GestureDetector(
-                  behavior: HitTestBehavior.translucent,
-                  onTap: _closePanel,
-                ),
-              ),
             // 우측 슬라이드인 사이드 패널
             AnimatedPositioned(
               duration: const Duration(milliseconds: 220),
@@ -252,6 +245,7 @@ class _GraphView extends StatelessWidget {
   final AddChildDialogStyle addChildDialogStyle;
   final ValueChanged<JsonNode>? onShowDetail;
   final JsonNode? selectedNode;
+  final VoidCallback? onClosePanel;
 
   const _GraphView({
     required this.root,
@@ -262,6 +256,7 @@ class _GraphView extends StatelessWidget {
     required this.addChildDialogStyle,
     this.onShowDetail,
     this.selectedNode,
+    this.onClosePanel,
   });
 
   @override
@@ -281,6 +276,15 @@ class _GraphView extends StatelessWidget {
         height: h,
         child: Stack(
           children: [
+            // 빈 캔버스 탭 → 패널 닫기. Stack 맨 아래에 위치해야 노드 카드가
+            // 제스처 아레나에서 이김 (노드 카드가 더 위 → 아레나에 먼저 등록됨).
+            if (onClosePanel != null)
+              Positioned.fill(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: onClosePanel,
+                ),
+              ),
             Positioned.fill(
               child: CustomPaint(painter: EdgePainter(root, style: edgeStyle)),
             ),

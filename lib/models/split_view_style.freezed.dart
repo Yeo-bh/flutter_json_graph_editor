@@ -213,7 +213,7 @@ return $default(_that.dividerColor,_that.dividerWidth,_that.minRatio,_that.maxRa
 
 
 class _SplitViewStyle implements SplitViewStyle {
-  const _SplitViewStyle({this.dividerColor = const Color(0xFFE1E4E8), this.dividerWidth = 4.0, this.minRatio = 0.2, this.maxRatio = 0.7});
+  const _SplitViewStyle({this.dividerColor = const Color(0xFFE1E4E8), this.dividerWidth = 8.0, this.minRatio = 0.2, this.maxRatio = 0.7});
   
 
 /// 분할선 색.

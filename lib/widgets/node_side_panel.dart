@@ -29,6 +29,9 @@ class _NodeSidePanelState extends State<NodeSidePanel> {
   String? _editingKey;
   TextEditingController? _editController;
 
+  bool _isEditingLabel = false;
+  TextEditingController? _labelController;
+
   @override
   void initState() {
     super.initState();
@@ -45,6 +48,9 @@ class _NodeSidePanelState extends State<NodeSidePanel> {
       _editingKey = null;
       _editController?.dispose();
       _editController = null;
+      _isEditingLabel = false;
+      _labelController?.dispose();
+      _labelController = null;
     }
   }
 
@@ -54,6 +60,7 @@ class _NodeSidePanelState extends State<NodeSidePanel> {
   void dispose() {
     widget.state.removeListener(_onStateChanged);
     _editController?.dispose();
+    _labelController?.dispose();
     super.dispose();
   }
 
@@ -78,6 +85,36 @@ class _NodeSidePanelState extends State<NodeSidePanel> {
       if (a[i] != b[i]) return false;
     }
     return true;
+  }
+
+  void _startLabelEdit(JsonNode node) {
+    setState(() {
+      _isEditingLabel = true;
+      _labelController?.dispose();
+      _labelController = TextEditingController(text: node.label);
+    });
+  }
+
+  void _saveLabelEdit() {
+    final newKey = _labelController?.text.trim() ?? '';
+    final oldPath = List<String>.from(_nodePath);
+    setState(() {
+      _isEditingLabel = false;
+      _labelController?.dispose();
+      _labelController = null;
+    });
+    if (newKey.isNotEmpty && newKey != _node.label) {
+      _nodePath = [...oldPath.sublist(0, oldPath.length - 1), newKey];
+      widget.state.renameNodeKey(oldPath, newKey);
+    }
+  }
+
+  void _cancelLabelEdit() {
+    setState(() {
+      _isEditingLabel = false;
+      _labelController?.dispose();
+      _labelController = null;
+    });
   }
 
   void _startEdit(NodeEntry entry) {
@@ -128,7 +165,7 @@ class _NodeSidePanelState extends State<NodeSidePanel> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _metaRow('Type', node.isArray ? 'Array' : 'Object'),
-                  _metaRow('Key', node.label),
+                  // _metaRow('Key', node.label),
                   if (node.children.isNotEmpty)
                     _metaRow('Children', '${node.children.length}'),
                   if (node.entries.isNotEmpty) ...[
@@ -148,6 +185,45 @@ class _NodeSidePanelState extends State<NodeSidePanel> {
 
   Widget _buildHeader(BuildContext context, JsonNode node) {
     final s = widget.style;
+    final canEditLabel = node.path.isNotEmpty;
+
+    final Widget labelWidget = _isEditingLabel
+        ? TextField(
+            controller: _labelController,
+            autofocus: true,
+            style: TextStyle(
+              color: s.titleColor,
+              fontSize: s.titleFontSize,
+              fontWeight: s.titleFontWeight,
+              fontFamily: s.fontFamily,
+            ),
+            decoration: InputDecoration(
+              isDense: true,
+              contentPadding: EdgeInsets.zero,
+              border: InputBorder.none,
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: s.dividerColor),
+              ),
+              focusedBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: s.headerBadgeTextColor),
+              ),
+            ),
+            onSubmitted: (_) => _saveLabelEdit(),
+            onTapOutside: (_) => _cancelLabelEdit(),
+          )
+        : GestureDetector(
+            onDoubleTap: canEditLabel ? () => _startLabelEdit(node) : null,
+            child: Text(
+              node.label,
+              style: TextStyle(
+                color: s.titleColor,
+                fontSize: s.titleFontSize,
+                fontWeight: s.titleFontWeight,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          );
+
     return Padding(
       padding: s.headerPadding,
       child: Row(
@@ -169,17 +245,7 @@ class _NodeSidePanelState extends State<NodeSidePanel> {
             ),
           ),
           const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              node.label,
-              style: TextStyle(
-                color: s.titleColor,
-                fontSize: s.titleFontSize,
-                fontWeight: s.titleFontWeight,
-              ),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
+          Expanded(child: labelWidget),
           IconButton(
             onPressed: widget.onClose,
             icon: Icon(
