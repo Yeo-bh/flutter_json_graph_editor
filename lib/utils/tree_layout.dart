@@ -3,19 +3,30 @@ import '../models/json_node.dart';
 import '../models/node_card_style.dart';
 
 // 노드 간 간격 상수 (카드 스타일과 무관한 레이아웃 전용 값)
-const double kHGap = 80.0; // 부모-자식 카드 사이 가로 간격
-const double kVGap = 16.0; // 형제 카드 사이 세로 간격
+const double kHGap = 100.0; // 부모-자식 카드 사이 가로 간격
+const double kVGap = 20.0; // 형제 카드 사이 세로 간격
 
 // edge_painter 호환용 상수 — NodeCardStyle.defaults.width와 동일한 값 유지
 const double kNodeWidth = 210.0;
 
 // 카드 자체의 픽셀 높이 (헤더 + entry 줄 수 * 줄 높이 + 상하 테두리)
-double nodeHeight(JsonNode node, [NodeCardStyle style = const NodeCardStyle()]) =>
-    style.headerHeight + node.entries.length * style.entryHeight + style.borderWidth * 2;
+// entries가 접혀있으면 헤더 높이만 사용
+double nodeHeight(
+  JsonNode node, [
+  NodeCardStyle style = const NodeCardStyle(),
+]) {
+  final entryRows = node.isEntriesCollapsed ? 0 : node.entries.length;
+  return style.headerHeight +
+      entryRows * style.entryHeight +
+      style.borderWidth * 2;
+}
 
 // 해당 노드의 서브트리 전체가 차지하는 세로 높이
 // (펼쳐진 자식들을 포함한 총 높이, 레이아웃 계산에 사용)
-double subtreeHeight(JsonNode node, [NodeCardStyle style = const NodeCardStyle()]) {
+double subtreeHeight(
+  JsonNode node, [
+  NodeCardStyle style = const NodeCardStyle(),
+]) {
   if (node.isCollapsed || node.children.isEmpty) return nodeHeight(node, style);
 
   // 자식들의 subtreeHeight 합계 + 자식 간 간격

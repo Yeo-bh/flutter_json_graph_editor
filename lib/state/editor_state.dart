@@ -1,42 +1,36 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import '../models/json_node.dart';
+import '../utils/collapse_manager.dart';
+import '../utils/default_json.dart';
+import '../utils/json_mutator.dart';
 import '../utils/json_parser.dart';
+import '../utils/node_finder.dart';
 import '../utils/tree_layout.dart';
-
-const _kDefaultJson = '''
-{
-  "name": "JSON Editor",
-  "version": "1.0.0",
-  "author": {
-    "name": "Developer",
-    "email": "dev@example.com"
-  },
-  "features": {
-    "editor": true,
-    "graph": true,
-    "theme": "dark"
-  },
-  "tags": ["flutter", "web", "json"]
-}
-''';
 
 // 앱 전체 상태를 관리하는 클래스 (Provider로 위젯 트리에 공유)
 // ChangeNotifier: 상태가 바뀔 때 notifyListeners() 호출 → 구독 위젯 리빌드
+// JSON 뮤테이션/탐색/collapse 로직은 utils로 위임, 이 클래스는 조율만 담당
 class EditorState extends ChangeNotifier {
   String _jsonText = '';
   JsonNode? _rootNode; // 파싱 성공 시 그래프에 표시되는 트리
   String? _error; // 파싱 실패 시 에러 메시지
+  List<String>? _selectedNodePath; // 그래프에서 선택한 노드 path (에디터 하이라이트용)
+  final bool collapseChildrenByDefault;
+  final bool collapseEntriesByDefault;
 
   String get jsonText => _jsonText;
   JsonNode? get rootNode => _rootNode;
   String? get error => _error;
+  List<String>? get selectedNodePath => _selectedNodePath;
 
-  EditorState({String? initialJson}) {
-    final json = initialJson ?? _kDefaultJson;
+  EditorState({
+    String? initialJson,
+    this.collapseChildrenByDefault = true,
+    this.collapseEntriesByDefault = true,
+  }) {
+    final json = initialJson ?? kDefaultJson;
     _jsonText = json;
-    _parse(json); // 초기 JSON으로 그래프 미리 표시
+    _parse(json);
   }
 
   // 에디터 텍스트가 바뀔 때마다 호출 (실시간 파싱)
@@ -49,38 +43,103 @@ class EditorState extends ChangeNotifier {
   // 노드 카드의 접기/펼치기 버튼 클릭 시 호출
   void toggleCollapse(String nodeId) {
     if (_rootNode == null) return;
-    final node = _findNode(_rootNode!, nodeId);
+    final node = findNodeById(_rootNode!, nodeId);
     if (node != null) {
       node.isCollapsed = !node.isCollapsed;
-      layoutTree(_rootNode!); // 접기 상태 바뀌면 레이아웃 재계산
+      layoutTree(_rootNode!);
       notifyListeners();
     }
   }
 
-  // 특정 노드의 entry 값을 수정하고 JSON 텍스트를 재생성
-  // nodePath: 루트에서 해당 노드까지의 경로 (JsonNode.path)
-  // navigationKey: 수정할 entry의 실제 키 (NodeEntry.navigationKey)
-  // newValue: 새 값 (null/bool/num/String 중 하나)
-  void updateEntryAtPath(List<String> nodePath, String navigationKey, dynamic newValue) {
-    try {
-      final dynamic decoded = jsonDecode(_jsonText);
-      // 경로를 따라 대상 객체/배열까지 탐색
-      dynamic current = decoded;
-      for (final key in nodePath) {
-        current = current is List ? current[int.parse(key)] : current[key];
-      }
-      // 실제 값 업데이트
-      if (current is List) {
-        current[int.parse(navigationKey)] = newValue;
-      } else if (current is Map) {
-        current[navigationKey] = newValue;
-      }
-      // 수정된 구조를 포맷팅된 JSON 문자열로 재직렬화
-      final newText = const JsonEncoder.withIndent('  ').convert(decoded);
-      updateText(newText);
-    } catch (_) {
-      // 경로 탐색 실패 시 조용히 무시 (JSON 구조가 바뀐 경우)
+  // 검색 결과 자동 확장: 조상 노드 펼치고, 직접 매칭 노드는 entries도 펼침
+  void expandNodes({
+    required Set<String> highlightedIds,
+    required Set<String> matchedIds,
+  }) {
+    if (_rootNode == null || highlightedIds.isEmpty) return;
+    _expandRecursive(_rootNode!, highlightedIds, matchedIds);
+    layoutTree(_rootNode!);
+    notifyListeners();
+  }
+
+  void _expandRecursive(
+    JsonNode node,
+    Set<String> highlightedIds,
+    Set<String> matchedIds,
+  ) {
+    if (highlightedIds.contains(node.id)) {
+      node.isCollapsed = false;
+      if (matchedIds.contains(node.id)) node.isEntriesCollapsed = false;
     }
+    for (final child in node.children) {
+      _expandRecursive(child, highlightedIds, matchedIds);
+    }
+  }
+
+  // 카드 내부 entries 접기/펼치기
+  void toggleEntriesCollapse(String nodeId) {
+    if (_rootNode == null) return;
+    final node = findNodeById(_rootNode!, nodeId);
+    if (node != null) {
+      node.isEntriesCollapsed = !node.isEntriesCollapsed;
+      layoutTree(_rootNode!);
+      notifyListeners();
+    }
+  }
+
+  // 노드 경로에 새 key-value 추가 (primitive → entry, object/array → child 노드)
+  // key가 null이면 배열에 append
+  void addChildToNode(
+    List<String> nodePath,
+    String? key,
+    dynamic defaultValue,
+  ) {
+    final newText = addChildToJson(_jsonText, nodePath, key, defaultValue);
+    if (newText != null) updateText(newText);
+  }
+
+  // 특정 노드의 entry 값을 수정하고 JSON 텍스트를 재생성
+  void updateEntryAtPath(
+    List<String> nodePath,
+    String navigationKey,
+    dynamic newValue,
+  ) {
+    final newText = updateEntryInJson(
+      _jsonText,
+      nodePath,
+      navigationKey,
+      newValue,
+    );
+    if (newText != null) updateText(newText);
+  }
+
+  // 노드의 키를 변경하고 JSON을 재생성
+  void renameNodeKey(List<String> nodePath, String newKey) {
+    final newText = renameKeyInJson(_jsonText, nodePath, newKey);
+    if (newText != null) updateText(newText);
+  }
+
+  // 노드 내부 entry의 키 이름을 변경하고 JSON을 재생성
+  void renameEntryKey(List<String> nodePath, String oldKey, String newKey) {
+    final newText = renameEntryKeyInJson(_jsonText, nodePath, oldKey, newKey);
+    if (newText != null) updateText(newText);
+  }
+
+  // entry 삭제는 부모 nodePath + navigationKey 조합을 deleteNodeAtPath에 위임
+  void deleteEntry(List<String> nodePath, String navigationKey) {
+    deleteNode([...nodePath, navigationKey]);
+  }
+
+  // 그래프에서 노드 선택 시 호출 → 에디터가 해당 라인 범위를 하이라이트
+  void selectNode(List<String>? path) {
+    _selectedNodePath = path;
+    notifyListeners();
+  }
+
+  // 노드를 부모에서 제거하고 JSON을 재생성. 루트는 삭제 불가.
+  void deleteNode(List<String> nodePath) {
+    final newText = deleteNodeAtPath(_jsonText, nodePath);
+    if (newText != null) updateText(newText);
   }
 
   void _parse(String text) {
@@ -89,23 +148,30 @@ class EditorState extends ChangeNotifier {
       _error = null;
       return;
     }
+
+    // 재파싱 전 사용자가 변경한 collapse 상태를 path 키로 스냅샷
+    final snapshot = <String, ({bool isCollapsed, bool isEntriesCollapsed})>{};
+    if (_rootNode != null) snapshotCollapse(_rootNode!, snapshot);
+
     final node = parseJson(text);
     if (node != null) {
+      if (snapshot.isEmpty) {
+        if (collapseChildrenByDefault) collapseChildren(node);
+        if (collapseEntriesByDefault) collapseAllEntries(node);
+      } else {
+        restoreCollapse(
+          node,
+          snapshot,
+          isRoot: true,
+          collapseChildrenByDefault: collapseChildrenByDefault,
+          collapseEntriesByDefault: collapseEntriesByDefault,
+        );
+      }
       _rootNode = node;
-      layoutTree(node); // 파싱 성공 시 즉시 레이아웃 계산
+      layoutTree(node);
       _error = null;
     } else {
-      _error = 'Invalid JSON'; // 파싱 실패 → 이전 그래프 유지, 에러만 표시
+      _error = 'Invalid JSON';
     }
-  }
-
-  // ID로 트리에서 노드를 찾는 DFS 탐색
-  JsonNode? _findNode(JsonNode node, String id) {
-    if (node.id == id) return node;
-    for (final child in node.children) {
-      final found = _findNode(child, id);
-      if (found != null) return found;
-    }
-    return null;
   }
 }

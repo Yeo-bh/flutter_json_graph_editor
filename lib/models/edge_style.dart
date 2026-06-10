@@ -1,22 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-/// 노드 카드 사이 연결선(엣지)의 시각적 옵션.
-class EdgeStyle {
-  /// 연결선 색상.
-  final Color lineColor;
+part 'edge_style.freezed.dart';
 
-  /// 연결선 두께(px).
-  final double lineWidth;
+@freezed
+abstract class EdgeStyle with _$EdgeStyle {
+  const factory EdgeStyle({
+    /// 연결선 색상.
+    @Default(Color(0xFFD1D5DB)) Color lineColor,
 
-  const EdgeStyle({
-    this.lineColor = const Color(0xFFD1D5DB),
-    this.lineWidth = 1.5,
-  });
-
-  EdgeStyle copyWith({Color? lineColor, double? lineWidth}) {
-    return EdgeStyle(
-      lineColor: lineColor ?? this.lineColor,
-      lineWidth: lineWidth ?? this.lineWidth,
-    );
-  }
+    /// 연결선 두께(px).
+    @Default(1.5) double lineWidth,
+  }) = _EdgeStyle;
 }

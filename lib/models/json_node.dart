@@ -29,6 +29,7 @@ class JsonNode {
   final List<JsonNode> children; // 연결선으로 이어지는 자식 노드들
   final List<String> path; // 루트에서 이 노드까지의 JSON 탐색 경로 (updateEntryAtPath에 사용)
   bool isCollapsed; // 자식 숨김 여부
+  bool isEntriesCollapsed; // 카드 내부 entries 숨김 여부
   Offset position; // 그래프 캔버스 상의 좌표 (layout 계산 후 채워짐)
   Size size; // 카드 크기 (layout 계산 후 채워짐)
 
@@ -40,6 +41,7 @@ class JsonNode {
     List<JsonNode>? children,
     List<String>? path,
     this.isCollapsed = false,
+    this.isEntriesCollapsed = false,
     this.position = Offset.zero,
     this.size = Size.zero,
   })  : entries = entries ?? [],
