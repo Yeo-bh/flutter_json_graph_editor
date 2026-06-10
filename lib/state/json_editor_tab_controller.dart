@@ -32,7 +32,7 @@ class JsonEditorTabController extends ChangeNotifier {
 
   void addTab({String? name, String? initialJson}) {
     _addTabInternal(
-      name: name ?? 'Tab ${_tabs.length + 1}',
+      name: name ?? 'Tab${_tabs.length + 1}.json',
       initialJson: initialJson,
     );
     _activeIndex = _tabs.length - 1;
