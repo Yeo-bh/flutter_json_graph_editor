@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../models/node_detail_style.dart';
+import '../shared/confirm_dialog.dart';
 
 // 사이드 패널 헤더 하단 액션 버튼 툴바
 class NodeSidePanelToolbar extends StatelessWidget {
@@ -36,48 +37,14 @@ class NodeSidePanelToolbar extends StatelessWidget {
   }
 
   Future<void> _confirmDelete(BuildContext context) async {
-    final s = style;
-    final buttonStyle = TextStyle(
-      fontFamily: s.fontFamily,
-      fontSize: s.metaValueFontSize,
+    final confirmed = await ConfirmDialog.show(
+      context,
+      title: '노드 삭제',
+      message: '이 노드와 하위 내용을 모두 삭제할까요?',
+      confirmText: '삭제',
+      isDestructive: true,
     );
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: s.backgroundColor,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        title: Text(
-          '노드 삭제',
-          style: TextStyle(
-            color: s.titleColor,
-            fontSize: s.titleFontSize,
-            fontWeight: s.titleFontWeight,
-            fontFamily: s.fontFamily,
-          ),
-        ),
-        content: Text(
-          '이 노드와 하위 내용을 모두 삭제할까요?',
-          style: TextStyle(
-            color: s.metaValueColor,
-            fontFamily: s.fontFamily,
-            fontSize: s.metaValueFontSize,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            style: TextButton.styleFrom(foregroundColor: s.metaLabelColor),
-            child: Text('취소', style: buttonStyle),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text('삭제', style: buttonStyle),
-          ),
-        ],
-      ),
-    );
-    if (confirmed == true) onDelete?.call();
+    if (confirmed) onDelete?.call();
   }
 
   @override
@@ -87,6 +54,7 @@ class NodeSidePanelToolbar extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       child: Row(
         children: [
+          Spacer(),
           IconButton(
             onPressed: _copyNodeJson,
             icon: Icon(Icons.content_copy, size: 20, color: s.metaLabelColor),
