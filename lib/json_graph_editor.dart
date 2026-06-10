@@ -3,6 +3,11 @@ library json_graph_editor;
 // 진입점
 export 'widgets/json_editor_widget.dart';
 
+// 멀티 탭
+export 'widgets/json_editor_tab_view.dart';
+export 'state/json_editor_tab_controller.dart';
+export 'models/json_editor_tab.dart';
+
 // 툴바 액션
 export 'widgets/graph_toolbar/graph_toolbar.dart' show GraphToolbarAction;
 

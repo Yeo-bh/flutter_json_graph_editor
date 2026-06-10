@@ -10,6 +10,7 @@ import 'split_view/split_view.dart';
 /// JSON 에디터 패키지의 최상위 위젯.
 /// [style]로 전체 테마를 한 번에 제어하고,
 /// [extraActions]로 툴바에 버튼을 추가할 수 있다.
+/// [externalState]를 제공하면 내부 EditorState 대신 외부 인스턴스를 사용한다.
 class JsonEditorWidget extends StatefulWidget {
   /// 에디터 전체 시각적 스타일. 기본값은 라이트 테마.
   final JsonEditorStyle style;
@@ -18,13 +19,18 @@ class JsonEditorWidget extends StatefulWidget {
   final List<GraphToolbarAction> extraActions;
 
   /// 에디터의 초기 JSON 텍스트. null이면 EditorState 기본값 사용.
+  /// [externalState]가 제공되면 무시된다.
   final String? initialJson;
+
+  /// 외부에서 생성한 EditorState. 제공 시 위젯이 직접 state를 소유하지 않는다.
+  final EditorState? externalState;
 
   JsonEditorWidget({
     super.key,
     JsonEditorStyle? style,
     this.extraActions = const [],
     this.initialJson,
+    this.externalState,
   }) : style = style ?? JsonEditorStyle();
 
   @override
@@ -33,15 +39,31 @@ class JsonEditorWidget extends StatefulWidget {
 
 class _JsonEditorWidgetState extends State<JsonEditorWidget> {
   final _splitViewKey = GlobalKey<SplitViewState>();
+  EditorState? _ownedState;
 
   @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => EditorState(
+  void initState() {
+    super.initState();
+    if (widget.externalState == null) {
+      _ownedState = EditorState(
         initialJson: widget.initialJson,
         collapseChildrenByDefault: widget.style.collapseChildrenByDefault,
         collapseEntriesByDefault: widget.style.collapseEntriesByDefault,
-      ),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _ownedState?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final state = widget.externalState ?? _ownedState!;
+    return ChangeNotifierProvider.value(
+      value: state,
       child: SplitView(
         key: _splitViewKey,
         style: widget.style.splitView,

@@ -32,8 +32,26 @@ class JsonEditorApp extends StatelessWidget {
   }
 }
 
-class _Home extends StatelessWidget {
+class _Home extends StatefulWidget {
   const _Home();
+
+  @override
+  State<_Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<_Home> {
+  final _tabController = JsonEditorTabController(
+    initialTabs: [
+      (name: 'sample.json', initialJson: null),
+      (name: 'config.json', initialJson: '{"env":"production","debug":false}'),
+    ],
+  );
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +69,8 @@ class _Home extends StatelessWidget {
           child: Container(height: 1, color: const Color(0xFFE1E4E8)),
         ),
       ),
-      body: JsonEditorWidget(
+      body: JsonEditorTabView(
+        controller: _tabController,
         extraActions: [
           GraphToolbarAction(
             icon: Icons.save_outlined,
