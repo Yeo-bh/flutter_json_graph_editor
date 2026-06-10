@@ -23,7 +23,10 @@ class NodeCardHeader extends StatelessWidget {
     final hasChildren = node.children.isNotEmpty;
     final inner = Container(
       height: style.headerHeight,
-      padding: EdgeInsets.symmetric(horizontal: style.headerPaddingHorizontal),
+      padding: EdgeInsets.symmetric(
+        horizontal: style.headerPaddingHorizontal,
+        vertical: 4,
+      ),
       color: style.headerBackgroundColor,
       child: Row(
         children: [
@@ -60,21 +63,18 @@ class NodeCardHeader extends StatelessWidget {
           ),
           // 자식이 있을 때만 접기/펼치기 버튼 표시
           if (hasChildren)
-            GestureDetector(
-              onTap: onToggle,
-              child: Container(
+            IconButton(
+              onPressed: onToggle,
+              icon: Icon(
+                node.isCollapsed ? Icons.chevron_right : Icons.chevron_left,
+                size: style.collapseIconSize,
+                color: style.collapseIconColor,
+              ),
+              style: IconButton.styleFrom(
+                backgroundColor: style.collapseIconBackgroundColor,
+                shape: CircleBorder(),
                 padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  color: style.collapseIconBackgroundColor,
-                  borderRadius: BorderRadius.circular(
-                    style.collapseIconBorderRadius,
-                  ),
-                ),
-                child: Icon(
-                  node.isCollapsed ? Icons.chevron_right : Icons.chevron_left,
-                  size: style.collapseIconSize,
-                  color: style.collapseIconColor,
-                ),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
             ),
         ],

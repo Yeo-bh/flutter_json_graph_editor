@@ -65,7 +65,7 @@ class GraphToolbar extends StatelessWidget {
           if (onToggleEditorPanel != null) ...[
             _ToolbarBtn(
               icon: Icons.view_sidebar_outlined,
-              tooltip: 'Toggle editor panel',
+              tooltip: '에디터 패널 토글',
               onTap: onToggleEditorPanel!,
               iconColor: style.iconColor,
               iconSize: style.iconSize,
@@ -76,7 +76,7 @@ class GraphToolbar extends StatelessWidget {
           ],
           _ToolbarBtn(
             icon: Icons.fit_screen_outlined,
-            tooltip: 'Fit to view',
+            tooltip: '화면에 맞추기',
             onTap: onFit,
             iconColor: style.iconColor,
             iconSize: style.iconSize,
@@ -86,7 +86,7 @@ class GraphToolbar extends StatelessWidget {
           _vDivider(),
           _ToolbarBtn(
             icon: Icons.remove,
-            tooltip: 'Zoom out',
+            tooltip: '축소',
             onTap: onZoomOut,
             iconColor: style.iconColor,
             iconSize: style.iconSize,
@@ -95,7 +95,7 @@ class GraphToolbar extends StatelessWidget {
           ),
           _ToolbarBtn(
             icon: Icons.add,
-            tooltip: 'Zoom in',
+            tooltip: '확대',
             onTap: onZoomIn,
             iconColor: style.iconColor,
             iconSize: style.iconSize,

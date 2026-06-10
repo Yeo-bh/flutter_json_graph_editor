@@ -83,8 +83,6 @@ class GraphView extends StatelessWidget {
         left: node.position.dx,
         top: node.position.dy,
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
             NodeCard(
@@ -97,12 +95,14 @@ class GraphView extends StatelessWidget {
               style: nodeCardStyle,
             ),
             const SizedBox(width: 8),
-            AddNodeButton(
-              node: node,
-              state: state,
-              cardStyle: nodeCardStyle,
-              dialogStyle: addChildDialogStyle,
-            ),
+            if (selectedNode?.id == node.id || node.path.isEmpty) ...[
+              AddNodeButton(
+                node: node,
+                state: state,
+                cardStyle: nodeCardStyle,
+                dialogStyle: addChildDialogStyle,
+              ),
+            ],
           ],
         ),
       ),

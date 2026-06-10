@@ -152,10 +152,10 @@ class _GraphPanelState extends State<GraphPanel> {
               curve: Curves.easeOut,
               right: _selectedNode != null
                   ? 0
-                  : -widget.nodeDetailStyle.panelWidth,
+                  : -(viewport.width * 0.35),
               top: 0,
               bottom: 0,
-              width: widget.nodeDetailStyle.panelWidth,
+              width: viewport.width * 0.35,
               child: _selectedNode != null
                   ? Consumer<EditorState>(
                       builder: (context, state, _) => NodeSidePanel(
