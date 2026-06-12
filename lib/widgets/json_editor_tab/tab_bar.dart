@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import '../../state/json_editor_tab_controller.dart';
 import 'add_tab_button.dart';
@@ -16,22 +17,31 @@ class JsonEditorTabBar extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: controller.tabs.length,
-              itemBuilder: (context, i) {
-                final tab = controller.tabs[i];
-                final isActive = i == controller.activeIndex;
-                return TabItem(
-                  label: tab.name,
-                  isActive: isActive,
-                  onTap: () => controller.setActive(i),
-                  onRename: (name) => controller.renameTab(tab.id, name),
-                  onClose: controller.tabs.length > 1
-                      ? () => controller.removeTab(tab.id)
-                      : null,
-                );
-              },
+            child: ScrollConfiguration(
+              behavior: ScrollConfiguration.of(context).copyWith(
+                dragDevices: {
+                  PointerDeviceKind.touch,
+                  PointerDeviceKind.mouse,
+                  PointerDeviceKind.trackpad,
+                },
+              ),
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: controller.tabs.length,
+                itemBuilder: (context, i) {
+                  final tab = controller.tabs[i];
+                  final isActive = i == controller.activeIndex;
+                  return TabItem(
+                    label: tab.name,
+                    isActive: isActive,
+                    onTap: () => controller.setActive(i),
+                    onRename: (name) => controller.renameTab(tab.id, name),
+                    onClose: controller.tabs.length > 1
+                        ? () => controller.removeTab(tab.id)
+                        : null,
+                  );
+                },
+              ),
             ),
           ),
           AddTabButton(onTap: () => controller.addTab()),
