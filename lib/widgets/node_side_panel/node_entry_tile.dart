@@ -135,7 +135,7 @@ class NodeEntryTile extends StatelessWidget {
                           ),
                         ),
                         child: Text(
-                          entry.type.name,
+                          entry.type.label,
                           style: TextStyle(
                             color: s.typeBadgeTextColor,
                             fontSize: s.typeBadgeFontSize,
@@ -155,6 +155,7 @@ class NodeEntryTile extends StatelessWidget {
                         onDoubleTap: isEditingValue ? null : onStartEditValue,
                         child: isEditingValue
                             ? NodeEntryTileBody(
+                                key: const ValueKey('edit'),
                                 type: editingType ?? entry.type,
                                 initialValue: NodeEntryTileBody.rawFromEntry(
                                   entry,
@@ -165,6 +166,7 @@ class NodeEntryTile extends StatelessWidget {
                                 onSave: onSaveEditValue,
                               )
                             : NodeEntryTileBody(
+                                key: const ValueKey('display'),
                                 type: entry.type,
                                 initialValue: NodeEntryTileBody.rawFromEntry(
                                   entry,

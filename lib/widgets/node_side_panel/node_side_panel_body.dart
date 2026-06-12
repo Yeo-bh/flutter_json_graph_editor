@@ -159,7 +159,11 @@ class _NodeSidePanelBodyState extends State<NodeSidePanelBody> {
                         _editingField == 'value'
                     ? _editingType
                     : null,
-                onTypeChanged: (t) => setState(() => _editingType = t),
+                onTypeChanged: (t) => setState(() {
+                  _editingType = t;
+                  _pendingEditValue = NodeEntryTileBody.defaultFor(t);
+                  _pendingEditValid = true;
+                }),
                 isEditValueValid:
                     _editingKey == entry.navigationKey &&
                         _editingField == 'value'

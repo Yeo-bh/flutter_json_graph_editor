@@ -34,10 +34,18 @@ class NodeEntryTileBody extends StatefulWidget {
     this.onSave,
   });
 
+  static dynamic defaultFor(EntryType type) => switch (type) {
+    EntryType.string => '',
+    EntryType.int64 => 0,
+    EntryType.double_ => 0.0,
+    EntryType.boolean => false,
+    EntryType.timestamp => '',
+    EntryType.nullValue => null,
+  };
+
   static dynamic rawFromEntry(NodeEntry entry) => switch (entry.type) {
     EntryType.string ||
-    EntryType.timestamp =>
-        entry.displayValue.replaceAll('"', ''),
+    EntryType.timestamp => entry.displayValue.replaceAll('"', ''),
     EntryType.int64 => int.tryParse(entry.displayValue),
     EntryType.double_ => double.tryParse(entry.displayValue),
     EntryType.boolean => entry.displayValue == 'true',
@@ -68,7 +76,7 @@ class _NodeEntryTileBodyState extends State<NodeEntryTileBody> {
   void didUpdateWidget(NodeEntryTileBody old) {
     super.didUpdateWidget(old);
     if (old.type != widget.type) {
-      final def = _defaultFor(widget.type);
+      final def = NodeEntryTileBody.defaultFor(widget.type);
       _boolValue = def == true;
       _controller.text = _toText(def);
       _isValid = true;
@@ -84,20 +92,13 @@ class _NodeEntryTileBodyState extends State<NodeEntryTileBody> {
     super.dispose();
   }
 
-  static dynamic _defaultFor(EntryType type) => switch (type) {
-    EntryType.string => '',
-    EntryType.int64 => 0,
-    EntryType.double_ => 0.0,
-    EntryType.boolean => false,
-    EntryType.timestamp => '',
-    EntryType.nullValue => null,
-  };
-
   String _toText(dynamic value) => value?.toString() ?? '';
 
   bool _validate(String text) => switch (widget.type) {
     EntryType.int64 => int.tryParse(text) != null,
-    EntryType.double_ => double.tryParse(text) != null,
+    // int.tryParse 성공 = 소수점 없는 정수 형식 → double_로 부적합
+    EntryType.double_ =>
+      double.tryParse(text) != null && int.tryParse(text) == null,
     _ => true,
   };
 
@@ -194,8 +195,8 @@ class _NodeEntryTileBodyState extends State<NodeEntryTileBody> {
     final valueColor = s.entryValueColor(widget.type);
     final display =
         widget.type == EntryType.string || widget.type == EntryType.timestamp
-            ? '"${widget.initialValue}"'
-            : _toText(widget.initialValue);
+        ? '"${widget.initialValue}"'
+        : _toText(widget.initialValue);
     return Text(
       display,
       style: TextStyle(
@@ -212,7 +213,7 @@ class _NodeEntryTileBodyState extends State<NodeEntryTileBody> {
         widget.type == EntryType.int64 || widget.type == EntryType.double_;
     final errorMsg = widget.type == EntryType.int64
         ? '정수를 입력하세요 (예: 42)'
-        : '실수를 입력하세요 (예: 3.14)';
+        : '소수점 포함 실수를 입력하세요 (예: 3.14)';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
