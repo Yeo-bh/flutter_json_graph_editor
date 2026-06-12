@@ -25,8 +25,14 @@ class JsonEditorWidget extends StatefulWidget {
   /// true면 툴바에 라이트/다크 토글 버튼 표시.
   final bool enableThemeToggle;
 
-  /// 초기 다크 모드 여부.
+  /// 초기 다크 모드 여부 (standalone 모드 전용).
   final bool initialDarkMode;
+
+  /// 외부에서 다크 모드를 제어할 때 사용. null이면 내부 상태로 관리.
+  final bool? externalIsDark;
+
+  /// [externalIsDark] 사용 시 토글 콜백. null이면 내부에서 처리.
+  final VoidCallback? onThemeToggled;
 
   /// 그래프 패널 하단 툴바에 추가할 사용자 정의 버튼 목록.
   final List<GraphToolbarAction> extraActions;
@@ -47,12 +53,14 @@ class JsonEditorWidget extends StatefulWidget {
     JsonEditorStyle? darkStyle,
     this.enableThemeToggle = true,
     this.initialDarkMode = false,
+    this.externalIsDark,
+    this.onThemeToggled,
     this.extraActions = const [],
     this.initialJson,
     this.externalState,
     this.onChanged,
-  })  : style = style ?? JsonEditorThemes.light,
-        darkStyle = darkStyle ?? JsonEditorThemes.dark;
+  }) : style = style ?? JsonEditorThemes.light,
+       darkStyle = darkStyle ?? JsonEditorThemes.dark;
 
   @override
   State<JsonEditorWidget> createState() => _JsonEditorWidgetState();
@@ -65,8 +73,10 @@ class _JsonEditorWidgetState extends State<JsonEditorWidget> {
 
   EditorState get _activeState => widget.externalState ?? _ownedState!;
 
+  bool get _isDarkEffective => widget.externalIsDark ?? _isDark;
+
   JsonEditorStyle get _effectiveStyle =>
-      _isDark ? widget.darkStyle : widget.style;
+      _isDarkEffective ? widget.darkStyle : widget.style;
 
   @override
   void initState() {
@@ -130,9 +140,15 @@ class _JsonEditorWidgetState extends State<JsonEditorWidget> {
           addChildDialogStyle: style.addChildDialog,
           onToggleEditorPanel: () => _splitViewKey.currentState?.toggle(),
           onToggleTheme: widget.enableThemeToggle
-              ? () => setState(() => _isDark = !_isDark)
+              ? () {
+                  if (widget.externalIsDark != null) {
+                    widget.onThemeToggled?.call();
+                  } else {
+                    setState(() => _isDark = !_isDark);
+                  }
+                }
               : null,
-          isDark: _isDark,
+          isDark: _isDarkEffective,
           extraActions: widget.extraActions,
         ),
       ),

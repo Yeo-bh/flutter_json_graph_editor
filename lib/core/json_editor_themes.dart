@@ -137,8 +137,8 @@ class JsonEditorThemes {
   /// 다크 테마용 탭 바 스타일. [JsonEditorTabView.tabBarStyle]에 전달.
   static const JsonEditorTabBarStyle darkTabBar = JsonEditorTabBarStyle(
     backgroundColor: Color(0xFF010409),
-    activeTabColor: Color(0xFF0D1117),
-    inactiveTabColor: Color(0xFF161B22),
+    activeTabColor: Color(0xFF161B22),
+    inactiveTabColor: Color(0xFF010409),
     activeTabShadowColor: Color(0x66000000),
     activeTextColor: Color(0xFFE6EDF3),
     inactiveTextColor: Color(0xFF8B949E),

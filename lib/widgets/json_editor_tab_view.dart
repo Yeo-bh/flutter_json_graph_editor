@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../core/json_editor_themes.dart';
 import '../models/style/json_editor_style.dart';
 import '../models/style/json_editor_tab_bar_style.dart';
 import '../state/json_editor_tab_controller.dart';
@@ -17,8 +18,11 @@ class JsonEditorTabView extends StatefulWidget {
   /// true면 각 에디터 툴바에 라이트/다크 토글 버튼 표시.
   final bool enableThemeToggle;
 
-  /// 상단 탭 바 스타일. 다크 UI에는 [JsonEditorThemes.darkTabBar] 사용.
+  /// 라이트 모드 탭 바 스타일.
   final JsonEditorTabBarStyle tabBarStyle;
+
+  /// 다크 모드 탭 바 스타일. 기본값은 [JsonEditorThemes.darkTabBar].
+  final JsonEditorTabBarStyle darkTabBarStyle;
 
   final List<GraphToolbarAction> extraActions;
 
@@ -29,6 +33,7 @@ class JsonEditorTabView extends StatefulWidget {
     this.darkStyle,
     this.enableThemeToggle = true,
     this.tabBarStyle = const JsonEditorTabBarStyle(),
+    this.darkTabBarStyle = JsonEditorThemes.darkTabBar,
     this.extraActions = const [],
   }) : style = style ?? JsonEditorStyle();
 
@@ -37,6 +42,8 @@ class JsonEditorTabView extends StatefulWidget {
 }
 
 class _JsonEditorTabViewState extends State<JsonEditorTabView> {
+  bool _isDark = false;
+
   @override
   void initState() {
     super.initState();
@@ -60,12 +67,15 @@ class _JsonEditorTabViewState extends State<JsonEditorTabView> {
 
   void _onControllerChanged() => setState(() {});
 
+  void _toggleTheme() => setState(() => _isDark = !_isDark);
+
   @override
   Widget build(BuildContext context) {
     final ctrl = widget.controller;
+    final tabBarStyle = _isDark ? widget.darkTabBarStyle : widget.tabBarStyle;
     return Column(
       children: [
-        JsonEditorTabBar(controller: ctrl, style: widget.tabBarStyle),
+        JsonEditorTabBar(controller: ctrl, style: tabBarStyle),
         Expanded(
           child: IndexedStack(
             index: ctrl.activeIndex,
@@ -79,6 +89,8 @@ class _JsonEditorTabViewState extends State<JsonEditorTabView> {
                     style: widget.style,
                     darkStyle: widget.darkStyle,
                     enableThemeToggle: widget.enableThemeToggle,
+                    externalIsDark: _isDark,
+                    onThemeToggled: _toggleTheme,
                     extraActions: widget.extraActions,
                     externalState: ctrl.stateFor(tab.id),
                   ),
