@@ -113,9 +113,18 @@ class _NodeEntryTileBodyState extends State<NodeEntryTileBody> {
 
   Future<void> _pickDateTime() async {
     final isDark = widget.style.backgroundColor.computeLuminance() < 0.5;
+    final c = widget.style.headerBadgeTextColor;
     final colorScheme = isDark
-        ? ColorScheme.dark(primary: widget.style.headerBadgeTextColor)
-        : ColorScheme.light(primary: widget.style.headerBadgeTextColor);
+        ? ColorScheme.dark(
+            primary: c,
+            secondaryContainer: c,
+            onSecondaryContainer: Colors.white,
+          )
+        : ColorScheme.light(
+            primary: c,
+            secondaryContainer: c,
+            onSecondaryContainer: Colors.white,
+          );
     Widget wrap(Widget? child) => Theme(
       data: ThemeData(colorScheme: colorScheme),
       child: child!,
