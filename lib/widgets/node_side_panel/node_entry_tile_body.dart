@@ -112,19 +112,34 @@ class _NodeEntryTileBodyState extends State<NodeEntryTileBody> {
   }
 
   Future<void> _pickDateTime() async {
+    final isDark = widget.style.backgroundColor.computeLuminance() < 0.5;
     final c = widget.style.headerBadgeTextColor;
-    final colorScheme = Theme.of(context).colorScheme.copyWith(
-      primary: c,
-      onPrimary: Colors.white,
-      primaryContainer: c,
-      onPrimaryContainer: Colors.white,
-      secondary: c,
-      onSecondary: Colors.white,
-      secondaryContainer: c,
-      onSecondaryContainer: Colors.white,
-    );
+    final colorScheme = isDark
+        ? ColorScheme.dark(
+            primary: c,
+            secondaryContainer: c,
+            onSecondaryContainer: Colors.white,
+          )
+        : ColorScheme.light(
+            primary: c,
+            secondaryContainer: c,
+            onSecondaryContainer: Colors.white,
+          );
     Widget wrap(Widget? child) => Theme(
-      data: Theme.of(context).copyWith(colorScheme: colorScheme),
+      data: ThemeData(
+        colorScheme: colorScheme,
+        timePickerTheme: TimePickerThemeData(
+          dayPeriodColor: WidgetStateColor.resolveWith(
+            (states) =>
+                states.contains(WidgetState.selected) ? c : Colors.transparent,
+          ),
+          dayPeriodTextColor: WidgetStateColor.resolveWith(
+            (states) => states.contains(WidgetState.selected)
+                ? Colors.white
+                : colorScheme.onSurface,
+          ),
+        ),
+      ),
       child: child!,
     );
 
