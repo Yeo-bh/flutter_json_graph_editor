@@ -8,7 +8,9 @@ JSON을 인터랙티브 노드 그래프로 시각화하고 편집하는 Flutter
 
 - 좌측 패널: 라인 번호 + 문법 강조 + 블록 접기가 지원되는 JSON 에디터
 - 우측 패널: 줌, 패닝, 전체 맞춤이 가능한 노드 그래프
-- 노드 카드를 탭하면 속성을 사이드 패널에서 조회·편집·추가·삭제 가능
+- 노드 카드를 탭하면 속성을 사이드 패널에서 타입별로 조회·편집·추가·삭제 가능
+- 다중 탭 지원 — `JsonEditorTabView` + `JsonEditorTabController`
+- 라이트 / 다크 모드 토글 (탭 전체에 동시 적용)
 - 툴바 검색으로 노드 이름 / entry 키 / 값 검색 — 매칭 노드 자동 펼치기 + 강조
 - `JsonEditorStyle` 로 모든 시각적 요소 커스터마이징
 - 툴바에 커스텀 액션 버튼 추가 가능
@@ -139,6 +141,33 @@ JsonEditorWidget(
 
 ---
 
+## 다크 모드
+
+### JsonEditorWidget (standalone)
+
+```dart
+JsonEditorWidget(
+  initialDarkMode: true,       // 초기 다크 모드
+  enableThemeToggle: true,     // 툴바에 토글 버튼 표시 (기본값)
+  style: JsonEditorThemes.light,
+  darkStyle: JsonEditorThemes.dark,
+)
+```
+
+### JsonEditorTabView
+
+탭 뷰는 모든 탭에 동일한 테마를 적용한다. 한 탭에서 토글하면 전체가 바뀐다.
+
+```dart
+JsonEditorTabView(
+  controller: _tabController,
+  tabBarStyle: const JsonEditorTabBarStyle(),         // 라이트 탭 바
+  darkTabBarStyle: JsonEditorThemes.darkTabBar,       // 다크 탭 바 (기본값)
+)
+```
+
+---
+
 ## 스타일 커스터마이징
 
 `JsonEditorStyle` 로 모든 시각적 요소를 한번에 제어한다:
@@ -167,7 +196,8 @@ JsonEditorWidget(
 |---|---|
 | `graphPanel` | 캔버스 배경, 격자선 |
 | `nodeCard` | 노드 카드 색상, 폰트, 테두리 |
-| `nodeInfoDialog` | 속성 상세 다이얼로그 |
+| `nodeDetail` | 사이드 패널 속성 편집 영역 |
+| `addChildDialog` | 자식 노드 추가 다이얼로그 |
 | `edge` | 연결선 색상 및 굵기 |
 | `graphToolbar` | 줌/액션 툴바 |
 | `editorPanel` | 코드 에디터 색상 및 폰트 |

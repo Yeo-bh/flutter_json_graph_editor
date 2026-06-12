@@ -8,7 +8,9 @@ A Flutter widget that visualizes and edits JSON as an interactive node graph.
 
 - Left panel: syntax-highlighted JSON editor with line numbers and block folding
 - Right panel: interactive node graph with zoom, pan, and fit-to-view
-- Tap any node card to inspect, edit, add, and delete properties in the side panel
+- Tap any node card to inspect, edit, add, and delete properties in the side panel — with type-aware editors per entry
+- Multi-tab support via `JsonEditorTabView` + `JsonEditorTabController`
+- Light / dark mode toggle — synced across all tabs simultaneously
 - Search nodes by label, entry key, or value — auto-expands and highlights matches
 - Full style customization via `JsonEditorStyle`
 - Extend the toolbar with custom action buttons
@@ -138,6 +140,33 @@ JsonEditorWidget(
 
 ---
 
+## Dark mode
+
+### JsonEditorWidget (standalone)
+
+```dart
+JsonEditorWidget(
+  initialDarkMode: true,       // start in dark mode
+  enableThemeToggle: true,     // show toggle button in toolbar (default)
+  style: JsonEditorThemes.light,
+  darkStyle: JsonEditorThemes.dark,
+)
+```
+
+### JsonEditorTabView
+
+The tab view applies one theme to all tabs at once. Toggling in any tab switches every tab and the tab bar.
+
+```dart
+JsonEditorTabView(
+  controller: _tabController,
+  tabBarStyle: const JsonEditorTabBarStyle(),         // light tab bar
+  darkTabBarStyle: JsonEditorThemes.darkTabBar,       // dark tab bar (default)
+)
+```
+
+---
+
 ## Styling
 
 Pass a `JsonEditorStyle` to customize every visual aspect:
@@ -166,7 +195,8 @@ JsonEditorWidget(
 |---|---|
 | `graphPanel` | Canvas background, grid lines |
 | `nodeCard` | Node card colors, fonts, borders |
-| `nodeInfoDialog` | Property detail dialog |
+| `nodeDetail` | Side panel property editor |
+| `addChildDialog` | Add child node dialog |
 | `edge` | Connection line color and width |
 | `graphToolbar` | Zoom/action toolbar |
 | `editorPanel` | Code editor colors and fonts |
