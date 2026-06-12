@@ -11,6 +11,11 @@ class NodeEntryTile extends StatelessWidget {
 
   /// 키·값 중 하나만 편집 가능하므로 컨트롤러는 공유
   final TextEditingController? editController;
+
+  /// 값 편집 중 현재 선택된 타입 (null이면 비편집 상태)
+  final EntryType? editingType;
+  final ValueChanged<EntryType>? onTypeChanged;
+
   final VoidCallback onStartEditKey;
   final VoidCallback onStartEditValue;
   final VoidCallback onSaveEditKey;
@@ -24,6 +29,8 @@ class NodeEntryTile extends StatelessWidget {
     required this.isEditingKey,
     required this.isEditingValue,
     required this.editController,
+    this.editingType,
+    this.onTypeChanged,
     required this.onStartEditKey,
     required this.onStartEditValue,
     required this.onSaveEditKey,
@@ -187,6 +194,75 @@ class NodeEntryTile extends StatelessWidget {
                     ),
                     if (isEditingValue) ...[
                       const SizedBox(width: 6),
+                      PopupMenuButton<EntryType>(
+                        initialValue: editingType,
+                        onSelected: (t) => onTypeChanged?.call(t),
+                        padding: EdgeInsets.zero,
+                        color: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(6),
+                          side: BorderSide(color: s.dividerColor),
+                        ),
+                        itemBuilder: (_) => EntryType.values
+                            .map(
+                              (t) => PopupMenuItem<EntryType>(
+                                value: t,
+                                height: 32,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                ),
+                                child: Text(
+                                  t.label,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontFamily: s.fontFamily,
+                                    color: t == editingType
+                                        ? s.headerBadgeTextColor
+                                        : s.metaValueColor,
+                                    fontWeight: t == editingType
+                                        ? FontWeight.w600
+                                        : FontWeight.normal,
+                                  ),
+                                ),
+                              ),
+                            )
+                            .toList(),
+                        child: Container(
+                          padding: s.typeBadgePadding,
+                          decoration: BoxDecoration(
+                            color: s.headerBadgeBackgroundColor,
+                            borderRadius: BorderRadius.circular(
+                              s.typeBadgeBorderRadius,
+                            ),
+                            border: Border.all(
+                              color: s.headerBadgeTextColor.withValues(
+                                alpha: 0.35,
+                              ),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                editingType?.label ?? '',
+                                style: TextStyle(
+                                  color: s.headerBadgeTextColor,
+                                  fontSize: s.typeBadgeFontSize,
+                                  fontFamily: s.fontFamily,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(width: 2),
+                              Icon(
+                                Icons.arrow_drop_down,
+                                size: 12,
+                                color: s.headerBadgeTextColor,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 2),
                       IconButton(
                         onPressed: onSaveEditValue,
                         tooltip: '저장',

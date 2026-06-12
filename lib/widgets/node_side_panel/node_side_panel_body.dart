@@ -32,6 +32,7 @@ class _NodeSidePanelBodyState extends State<NodeSidePanelBody> {
   String? _editingKey;
   String? _editingField;
   TextEditingController? _editController;
+  EntryType? _editingType;
 
   @override
   void dispose() {
@@ -47,13 +48,17 @@ class _NodeSidePanelBodyState extends State<NodeSidePanelBody> {
     setState(() {
       _editingKey = entry.navigationKey;
       _editingField = 'value';
+      _editingType = entry.type;
       _editController?.dispose();
       _editController = TextEditingController(text: initial);
     });
   }
 
   void _saveEditValue(NodeEntry entry) {
-    final newValue = parseJsonInput(_editController!.text.trim());
+    final newValue = coerceToType(
+      _editController!.text.trim(),
+      _editingType ?? entry.type,
+    );
     widget.state.updateEntryAtPath(
       widget.nodePath,
       entry.navigationKey,
@@ -62,6 +67,7 @@ class _NodeSidePanelBodyState extends State<NodeSidePanelBody> {
     setState(() {
       _editingKey = null;
       _editingField = null;
+      _editingType = null;
       _editController?.dispose();
       _editController = null;
     });
@@ -140,6 +146,12 @@ class _NodeSidePanelBodyState extends State<NodeSidePanelBody> {
                 editController: _editingKey == entry.navigationKey
                     ? _editController
                     : null,
+                editingType:
+                    _editingKey == entry.navigationKey &&
+                        _editingField == 'value'
+                    ? _editingType
+                    : null,
+                onTypeChanged: (t) => setState(() => _editingType = t),
                 onStartEditKey: () => _startEditKey(entry),
                 onStartEditValue: () => _startEditValue(entry),
                 onSaveEditKey: () => _saveEditKey(entry),

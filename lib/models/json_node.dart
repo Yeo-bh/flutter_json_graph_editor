@@ -3,11 +3,20 @@ import 'package:flutter/material.dart';
 // 노드 안에 표시되는 값의 타입 (문자열/숫자/불리언/null)
 enum EntryType { string, number, boolean, nullValue }
 
+extension EntryTypeLabel on EntryType {
+  String get label => switch (this) {
+    EntryType.string => 'String',
+    EntryType.number => 'Number',
+    EntryType.boolean => 'Boolean',
+    EntryType.nullValue => 'Null',
+  };
+}
+
 // 노드 카드 안에 표시되는 한 줄의 key-value 쌍
 class NodeEntry {
-  final String key;           // 화면에 표시할 키 (배열은 "[0]" 형식)
+  final String key; // 화면에 표시할 키 (배열은 "[0]" 형식)
   final String navigationKey; // JSON 탐색용 실제 키 (배열은 "0", 객체는 key 그대로)
-  final String displayValue;  // 화면에 표시할 값 문자열 (string은 따옴표 포함)
+  final String displayValue; // 화면에 표시할 값 문자열 (string은 따옴표 포함)
   final EntryType type;
 
   const NodeEntry({
@@ -44,7 +53,7 @@ class JsonNode {
     this.isEntriesCollapsed = false,
     this.position = Offset.zero,
     this.size = Size.zero,
-  })  : entries = entries ?? [],
-        children = children ?? [],
-        path = path ?? [];
+  }) : entries = entries ?? [],
+       children = children ?? [],
+       path = path ?? [];
 }
