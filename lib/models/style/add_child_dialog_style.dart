@@ -104,5 +104,8 @@ abstract class AddChildDialogStyle with _$AddChildDialogStyle {
 
     /// 다이얼로그 전체에 적용되는 폰트 패밀리.
     @Default('monospace') String fontFamily,
+
+    /// 키 필드 검증 오류 시 테두리 색.
+    @Default(Color(0xFFF44336)) Color errorBorderColor,
   }) = _AddChildDialogStyle;
 }

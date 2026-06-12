@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/json_node.dart';
-import '../../models/node_card_style.dart';
+import '../../models/style/node_card_style.dart';
 
 // 카드 내부 한 줄: key : value (타입에 따라 값 색상 다름)
 class NodeCardEntryRow extends StatelessWidget {
@@ -21,7 +21,7 @@ class NodeCardEntryRow extends StatelessWidget {
       height: style.entryHeight,
       padding: EdgeInsets.symmetric(horizontal: style.entryPaddingHorizontal),
       decoration: BoxDecoration(
-        color: isMatched ? const Color(0xFFFFF3CD) : null,
+        color: isMatched ? style.searchMatchEntryBackgroundColor : null,
         border: Border(top: BorderSide(color: style.entryDividerColor)),
       ),
       child: Row(
@@ -52,7 +52,7 @@ class NodeCardEntryRow extends StatelessWidget {
             child: Text(
               entry.displayValue,
               style: TextStyle(
-                color: _valueColor(entry.type),
+                color: style.entryValueColor(entry.type),
                 fontSize: style.entryValueFontSize,
                 fontFamily: style.fontFamily,
               ),
@@ -63,12 +63,4 @@ class NodeCardEntryRow extends StatelessWidget {
       ),
     );
   }
-
-  // 타입별 값 색상: string=초록, number=파랑, boolean=노랑, null=회색
-  Color _valueColor(EntryType type) => switch (type) {
-    EntryType.string => style.stringValueColor,
-    EntryType.number => style.numberValueColor,
-    EntryType.boolean => style.booleanValueColor,
-    EntryType.nullValue => style.nullValueColor,
-  };
 }

@@ -1,4 +1,4 @@
-import '../models/json_node.dart';
+import '../../models/json_node.dart';
 
 // ID 기반 탐색: 위젯 이벤트(toggleCollapse 등)에서 사용
 JsonNode? findNodeById(JsonNode node, String id) {

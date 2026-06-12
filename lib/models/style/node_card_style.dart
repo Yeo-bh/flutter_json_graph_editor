@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../json_node.dart';
+
 part 'node_card_style.freezed.dart';
 
 @freezed
@@ -136,7 +138,27 @@ abstract class NodeCardStyle with _$NodeCardStyle {
 
     /// + 버튼 테두리 두께(px).
     @Default(1.5) double addButtonBorderWidth,
+
+    /// 검색 매칭된 카드의 테두리 색.
+    @Default(Color(0xFFF5A623)) Color searchMatchBorderColor,
+
+    /// 검색 매칭된 카드의 외곽 글로우 색.
+    @Default(Color(0x40F5A623)) Color searchMatchShadowColor,
+
+    /// 검색 매칭된 entry 행의 배경색.
+    @Default(Color(0xFFFFF3CD)) Color searchMatchEntryBackgroundColor,
   }) = _NodeCardStyle;
 
   static const NodeCardStyle defaults = NodeCardStyle();
+}
+
+extension NodeCardStyleColor on NodeCardStyle {
+  Color entryValueColor(EntryType type) => switch (type) {
+    EntryType.string => stringValueColor,
+    EntryType.int64 => numberValueColor,
+    EntryType.double_ => numberValueColor,
+    EntryType.boolean => booleanValueColor,
+    EntryType.timestamp => stringValueColor,
+    EntryType.nullValue => nullValueColor,
+  };
 }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../models/graph_panel_style.dart';
+import '../../models/style/graph_panel_style.dart';
 
 // 격자 배경 그리기: 작은 격자(minorGridStep) + 큰 격자(majorGridStep) 두 단계
 class GridPainter extends CustomPainter {

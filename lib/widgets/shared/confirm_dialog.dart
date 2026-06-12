@@ -8,6 +8,12 @@ class ConfirmDialog extends StatelessWidget {
   final String confirmText;
   final String cancelText;
   final bool isDestructive;
+  final Color backgroundColor;
+  final Color titleColor;
+  final Color messageColor;
+  final Color cancelTextColor;
+  final Color confirmColor;
+  final Color destructiveColor;
 
   const ConfirmDialog({
     super.key,
@@ -16,6 +22,12 @@ class ConfirmDialog extends StatelessWidget {
     this.confirmText = '확인',
     this.cancelText = '취소',
     this.isDestructive = false,
+    this.backgroundColor = const Color(0xFFFFFFFF),
+    this.titleColor = const Color(0xFF24292E),
+    this.messageColor = const Color(0xFF586069),
+    this.cancelTextColor = const Color(0xFF6A737D),
+    this.confirmColor = const Color(0xFF0366D6),
+    this.destructiveColor = const Color(0xFFD32F2F),
   });
 
   /// 다이얼로그를 띄우고 확인 여부를 반환한다. 닫기(X)나 취소는 false.
@@ -26,6 +38,12 @@ class ConfirmDialog extends StatelessWidget {
     String confirmText = '확인',
     String cancelText = '취소',
     bool isDestructive = false,
+    Color backgroundColor = const Color(0xFFFFFFFF),
+    Color titleColor = const Color(0xFF24292E),
+    Color messageColor = const Color(0xFF586069),
+    Color cancelTextColor = const Color(0xFF6A737D),
+    Color confirmColor = const Color(0xFF0366D6),
+    Color destructiveColor = const Color(0xFFD32F2F),
   }) async {
     final result = await showDialog<bool>(
       context: context,
@@ -35,6 +53,12 @@ class ConfirmDialog extends StatelessWidget {
         confirmText: confirmText,
         cancelText: cancelText,
         isDestructive: isDestructive,
+        backgroundColor: backgroundColor,
+        titleColor: titleColor,
+        messageColor: messageColor,
+        cancelTextColor: cancelTextColor,
+        confirmColor: confirmColor,
+        destructiveColor: destructiveColor,
       ),
     );
     return result ?? false;
@@ -43,7 +67,7 @@ class ConfirmDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: const Color(0xFFFFFFFF),
+      backgroundColor: backgroundColor,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 320),
@@ -55,8 +79,8 @@ class ConfirmDialog extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: const TextStyle(
-                  color: Color(0xFF24292E),
+                style: TextStyle(
+                  color: titleColor,
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
                 ),
@@ -65,8 +89,8 @@ class ConfirmDialog extends StatelessWidget {
                 const SizedBox(height: 10),
                 Text(
                   message!,
-                  style: const TextStyle(
-                    color: Color(0xFF586069),
+                  style: TextStyle(
+                    color: messageColor,
                     fontSize: 13,
                   ),
                 ),
@@ -78,7 +102,7 @@ class ConfirmDialog extends StatelessWidget {
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(false),
                     style: TextButton.styleFrom(
-                      foregroundColor: const Color(0xFF6A737D),
+                      foregroundColor: cancelTextColor,
                     ),
                     child: Text(cancelText),
                   ),
@@ -87,8 +111,8 @@ class ConfirmDialog extends StatelessWidget {
                     onPressed: () => Navigator.of(context).pop(true),
                     style: TextButton.styleFrom(
                       foregroundColor: isDestructive
-                          ? Colors.red.shade700
-                          : const Color(0xFF0366D6),
+                          ? destructiveColor
+                          : confirmColor,
                     ),
                     child: Text(
                       confirmText,

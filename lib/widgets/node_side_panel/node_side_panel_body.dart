@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import '../../models/style/add_child_dialog_style.dart';
 import '../../models/json_node.dart';
-import '../../models/node_detail_style.dart';
+import '../../models/style/node_detail_style.dart';
 import '../../state/editor_state.dart';
-import '../../utils/json_value_parser.dart';
 import '../shared/confirm_dialog.dart';
 import 'add_entry_dialog.dart';
 import 'node_entry_tile.dart';
+import 'node_entry_tile_body.dart';
 
 /// 사이드 패널의 스크롤 가능한 본문 영역.
 /// 메타 정보, Properties 섹션(entry 목록 + 추가/삭제)을 포함하며,
@@ -15,6 +16,7 @@ class NodeSidePanelBody extends StatefulWidget {
   final List<String> nodePath;
   final EditorState state;
   final NodeDetailStyle style;
+  final AddChildDialogStyle addChildDialogStyle;
 
   const NodeSidePanelBody({
     super.key,
@@ -22,6 +24,7 @@ class NodeSidePanelBody extends StatefulWidget {
     required this.nodePath,
     required this.state,
     required this.style,
+    this.addChildDialogStyle = const AddChildDialogStyle(),
   });
 
   @override
@@ -32,6 +35,9 @@ class _NodeSidePanelBodyState extends State<NodeSidePanelBody> {
   String? _editingKey;
   String? _editingField;
   TextEditingController? _editController;
+  EntryType? _editingType;
+  dynamic _pendingEditValue;
+  bool _pendingEditValid = true;
 
   @override
   void dispose() {
@@ -39,31 +45,30 @@ class _NodeSidePanelBodyState extends State<NodeSidePanelBody> {
     super.dispose();
   }
 
-  // string 타입은 따옴표 제거 후 편집기에 노출
   void _startEditValue(NodeEntry entry) {
-    final initial = entry.type == EntryType.string
-        ? entry.displayValue.replaceAll('"', '')
-        : entry.displayValue;
     setState(() {
       _editingKey = entry.navigationKey;
       _editingField = 'value';
+      _editingType = entry.type;
+      _pendingEditValue = NodeEntryTileBody.rawFromEntry(entry);
+      _pendingEditValid = true;
       _editController?.dispose();
-      _editController = TextEditingController(text: initial);
+      _editController = null;
     });
   }
 
   void _saveEditValue(NodeEntry entry) {
-    final newValue = parseJsonInput(_editController!.text.trim());
     widget.state.updateEntryAtPath(
       widget.nodePath,
       entry.navigationKey,
-      newValue,
+      _pendingEditValue,
     );
     setState(() {
       _editingKey = null;
       _editingField = null;
-      _editController?.dispose();
-      _editController = null;
+      _editingType = null;
+      _pendingEditValue = null;
+      _pendingEditValid = true;
     });
   }
 
@@ -90,12 +95,19 @@ class _NodeSidePanelBodyState extends State<NodeSidePanelBody> {
   }
 
   Future<void> _confirmDeleteEntry(NodeEntry entry) async {
+    final s = widget.style;
     final confirmed = await ConfirmDialog.show(
       context,
       title: '"${entry.key}" 삭제',
       message: '이 항목을 삭제하시겠습니까?',
       confirmText: '삭제',
       isDestructive: true,
+      backgroundColor: s.backgroundColor,
+      titleColor: s.titleColor,
+      messageColor: s.metaLabelColor,
+      cancelTextColor: s.metaLabelColor,
+      confirmColor: s.headerBadgeTextColor,
+      destructiveColor: s.deleteIconColor,
     );
     if (confirmed) {
       widget.state.deleteEntry(widget.nodePath, entry.navigationKey);
@@ -109,6 +121,8 @@ class _NodeSidePanelBodyState extends State<NodeSidePanelBody> {
         parentNode: widget.node,
         nodePath: widget.nodePath,
         state: widget.state,
+        style: widget.addChildDialogStyle,
+        valueStyle: widget.style,
       ),
     );
   }
@@ -140,6 +154,25 @@ class _NodeSidePanelBodyState extends State<NodeSidePanelBody> {
                 editController: _editingKey == entry.navigationKey
                     ? _editController
                     : null,
+                editingType:
+                    _editingKey == entry.navigationKey &&
+                        _editingField == 'value'
+                    ? _editingType
+                    : null,
+                onTypeChanged: (t) => setState(() {
+                  _editingType = t;
+                  _pendingEditValue = NodeEntryTileBody.defaultFor(t);
+                  _pendingEditValid = true;
+                }),
+                isEditValueValid:
+                    _editingKey == entry.navigationKey &&
+                        _editingField == 'value'
+                    ? _pendingEditValid
+                    : true,
+                onValueChanged: (v, valid) => setState(() {
+                  _pendingEditValue = v;
+                  _pendingEditValid = valid;
+                }),
                 onStartEditKey: () => _startEditKey(entry),
                 onStartEditValue: () => _startEditValue(entry),
                 onSaveEditKey: () => _saveEditKey(entry),

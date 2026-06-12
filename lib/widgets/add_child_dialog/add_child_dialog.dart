@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../models/add_child_dialog_style.dart';
+import '../../models/style/add_child_dialog_style.dart';
 import '../../models/child_node_type.dart';
 import '../../models/json_node.dart';
 import '../../state/editor_state.dart';
@@ -157,11 +157,11 @@ class _AddChildDialogState extends State<AddChildDialog> {
                 ),
                 errorBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(s.keyFieldBorderRadius),
-                  borderSide: const BorderSide(color: Colors.red),
+                  borderSide: BorderSide(color: s.errorBorderColor),
                 ),
                 focusedErrorBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(s.keyFieldBorderRadius),
-                  borderSide: const BorderSide(color: Colors.red),
+                  borderSide: BorderSide(color: s.errorBorderColor),
                 ),
               ),
               onChanged: (_) {

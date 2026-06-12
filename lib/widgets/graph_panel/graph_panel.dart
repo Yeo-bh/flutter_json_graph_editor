@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../models/add_child_dialog_style.dart';
-import '../../models/edge_style.dart';
-import '../../models/graph_panel_style.dart';
-import '../../models/graph_toolbar_style.dart';
+import '../../models/style/add_child_dialog_style.dart';
+import '../../models/style/edge_style.dart';
+import '../../models/style/graph_panel_style.dart';
+import '../../models/style/graph_toolbar_style.dart';
 import '../../models/json_node.dart';
-import '../../models/node_card_style.dart';
-import '../../models/node_detail_style.dart';
+import '../../models/style/node_card_style.dart';
+import '../../models/style/node_detail_style.dart';
 import '../../state/editor_state.dart';
-import '../../utils/graph_transform.dart';
-import '../../utils/node_searcher.dart';
+import '../../core/utils/graph_transform.dart';
+import '../../core/utils/node_searcher.dart';
 import '../graph_toolbar/graph_search_bar.dart';
 import '../graph_toolbar/graph_toolbar.dart';
 import '../node_side_panel/node_side_panel.dart';
@@ -28,6 +28,12 @@ class GraphPanel extends StatefulWidget {
   /// 에디터 패널 접기/펼치기 콜백. null이면 툴바 버튼 미표시.
   final VoidCallback? onToggleEditorPanel;
 
+  /// 라이트/다크 테마 토글 콜백. null이면 툴바 버튼 미표시.
+  final VoidCallback? onToggleTheme;
+
+  /// 현재 다크 모드 여부 (토글 버튼 아이콘 결정에 사용)
+  final bool isDark;
+
   /// 툴바에 추가할 사용자 정의 버튼 목록
   /// 예: save, export, share 등 원하는 기능을 GraphToolbarAction으로 정의해서 전달
   final List<GraphToolbarAction> extraActions;
@@ -41,6 +47,8 @@ class GraphPanel extends StatefulWidget {
     this.nodeDetailStyle = const NodeDetailStyle(),
     this.addChildDialogStyle = const AddChildDialogStyle(),
     this.onToggleEditorPanel,
+    this.onToggleTheme,
+    this.isDark = false,
     this.extraActions = const [],
   });
 
@@ -196,9 +204,7 @@ class _GraphPanelState extends State<GraphPanel> {
             AnimatedPositioned(
               duration: const Duration(milliseconds: 220),
               curve: Curves.easeOut,
-              right: _selectedNode != null
-                  ? 0
-                  : -(viewport.width * 0.35),
+              right: _selectedNode != null ? 0 : -(viewport.width * 0.35),
               top: 0,
               bottom: 0,
               width: viewport.width * 0.35,
@@ -209,6 +215,7 @@ class _GraphPanelState extends State<GraphPanel> {
                         state: state,
                         onClose: _closePanel,
                         style: widget.nodeDetailStyle,
+                        addChildDialogStyle: widget.addChildDialogStyle,
                       ),
                     )
                   : const SizedBox.shrink(),
@@ -232,19 +239,19 @@ class _GraphPanelState extends State<GraphPanel> {
                           onModeChanged: (m) =>
                               _onModeChanged(m, state.rootNode, state),
                           onClose: _toggleSearch,
+                          style: widget.toolbarStyle,
                         ),
                         const SizedBox(height: 8),
                       ],
                       GraphToolbar(
                         onZoomIn: () => _scaleBy(1.25, viewport),
                         onZoomOut: () => _scaleBy(0.8, viewport),
-                        onFit: () => _fitToView(
-                          viewport,
-                          state.rootNode,
-                        ),
+                        onFit: () => _fitToView(viewport, state.rootNode),
                         onToggleEditorPanel: widget.onToggleEditorPanel,
                         onToggleSearch: _toggleSearch,
                         searchActive: _searchActive,
+                        onToggleTheme: widget.onToggleTheme,
+                        isDark: widget.isDark,
                         extraActions: widget.extraActions,
                         style: widget.toolbarStyle,
                       ),

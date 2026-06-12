@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../models/node_detail_style.dart';
+import '../../models/style/node_detail_style.dart';
 import '../shared/confirm_dialog.dart';
 
 // 사이드 패널 헤더 하단 액션 버튼 툴바
@@ -37,12 +37,19 @@ class NodeSidePanelToolbar extends StatelessWidget {
   }
 
   Future<void> _confirmDelete(BuildContext context) async {
+    final s = style;
     final confirmed = await ConfirmDialog.show(
       context,
       title: '노드 삭제',
       message: '이 노드와 하위 내용을 모두 삭제할까요?',
       confirmText: '삭제',
       isDestructive: true,
+      backgroundColor: s.backgroundColor,
+      titleColor: s.titleColor,
+      messageColor: s.metaLabelColor,
+      cancelTextColor: s.metaLabelColor,
+      confirmColor: s.headerBadgeTextColor,
+      destructiveColor: s.deleteIconColor,
     );
     if (confirmed) onDelete?.call();
   }
@@ -70,7 +77,7 @@ class NodeSidePanelToolbar extends StatelessWidget {
               Icons.delete_outline,
               size: 20,
               color: onDelete != null
-                  ? Colors.red
+                  ? s.deleteIconColor
                   : s.metaLabelColor.withValues(alpha: 0.3),
             ),
             tooltip: '노드 삭제',

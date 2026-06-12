@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/json_node.dart';
-import '../../models/node_card_style.dart';
+import '../../models/style/node_card_style.dart';
 import 'node_card_entry_row.dart';
 import 'node_card_header.dart';
 
@@ -46,7 +46,7 @@ class NodeCard extends StatelessWidget {
             color: isSelected
                 ? style.selectedBorderColor
                 : isMatched
-                    ? const Color(0xFFF5A623)
+                    ? style.searchMatchBorderColor
                     : style.borderColor,
             width: style.borderWidth,
           ),
@@ -58,8 +58,8 @@ class NodeCard extends StatelessWidget {
                 spreadRadius: 2,
               )
             else if (isMatched)
-              const BoxShadow(
-                color: Color(0x40F5A623),
+              BoxShadow(
+                color: style.searchMatchShadowColor,
                 blurRadius: 0,
                 spreadRadius: 2,
               )

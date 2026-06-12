@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../models/add_child_dialog_style.dart';
+import '../../models/style/add_child_dialog_style.dart';
+import '../../models/style/node_detail_style.dart';
 import '../../models/json_node.dart';
 import '../../models/primitive_entry_type.dart';
 import '../../state/editor_state.dart';
+import 'node_entry_tile_body.dart';
 
 /// 노드에 새 primitive entry(키-값 쌍)를 추가하는 다이얼로그.
 /// Object 노드는 키 입력 필드를 보여주고, Array 노드는 숨긴다.
@@ -11,6 +13,7 @@ class AddEntryDialog extends StatefulWidget {
   final List<String> nodePath;
   final EditorState state;
   final AddChildDialogStyle style;
+  final NodeDetailStyle valueStyle;
 
   const AddEntryDialog({
     super.key,
@@ -18,6 +21,7 @@ class AddEntryDialog extends StatefulWidget {
     required this.nodePath,
     required this.state,
     this.style = const AddChildDialogStyle(),
+    this.valueStyle = const NodeDetailStyle(),
   });
 
   @override
@@ -27,6 +31,8 @@ class AddEntryDialog extends StatefulWidget {
 class _AddEntryDialogState extends State<AddEntryDialog> {
   late final TextEditingController _keyController;
   PrimitiveEntryType _selectedType = PrimitiveEntryType.string;
+  dynamic _currentValue = '';
+  bool _isValueValid = true;
 
   AddChildDialogStyle get s => widget.style;
 
@@ -43,12 +49,13 @@ class _AddEntryDialogState extends State<AddEntryDialog> {
   }
 
   void _submit() {
+    if (!_isValueValid) return;
     final key = widget.parentNode.isArray ? null : _keyController.text.trim();
     if (key != null && key.isEmpty) return;
     widget.state.addChildToNode(
       widget.nodePath,
       key,
-      _selectedType.defaultValue,
+      _currentValue,
     );
     Navigator.of(context).pop();
   }
@@ -94,7 +101,11 @@ class _AddEntryDialogState extends State<AddEntryDialog> {
           ),
           GestureDetector(
             onTap: () => Navigator.of(context).pop(),
-            child: Icon(Icons.close, size: s.closeIconSize, color: s.closeIconColor),
+            child: Icon(
+              Icons.close,
+              size: s.closeIconSize,
+              color: s.closeIconColor,
+            ),
           ),
         ],
       ),
@@ -163,6 +174,30 @@ class _AddEntryDialogState extends State<AddEntryDialog> {
             runSpacing: 6,
             children: PrimitiveEntryType.values.map(_buildChip).toList(),
           ),
+          const SizedBox(height: 16),
+          Text(
+            '값',
+            style: TextStyle(
+              color: s.sectionLabelColor,
+              fontSize: s.sectionLabelFontSize,
+              fontWeight: FontWeight.w600,
+              fontFamily: s.fontFamily,
+              letterSpacing: 0.4,
+            ),
+          ),
+          const SizedBox(height: 8),
+          NodeEntryTileBody(
+            key: ValueKey(_selectedType),
+            type: _selectedType.entryType,
+            initialValue: _selectedType.defaultValue,
+            isEditing: true,
+            style: widget.valueStyle,
+            onChanged: (v, valid) => setState(() {
+              _currentValue = v;
+              _isValueValid = valid;
+            }),
+            onSave: _submit,
+          ),
         ],
       ),
     );
@@ -171,11 +206,17 @@ class _AddEntryDialogState extends State<AddEntryDialog> {
   Widget _buildChip(PrimitiveEntryType type) {
     final active = _selectedType == type;
     return GestureDetector(
-      onTap: () => setState(() => _selectedType = type),
+      onTap: () => setState(() {
+        _selectedType = type;
+        _currentValue = type.defaultValue;
+        _isValueValid = true;
+      }),
       child: Container(
         padding: s.chipPadding,
         decoration: BoxDecoration(
-          color: active ? s.chipActiveBackgroundColor : s.chipIdleBackgroundColor,
+          color: active
+              ? s.chipActiveBackgroundColor
+              : s.chipIdleBackgroundColor,
           borderRadius: BorderRadius.circular(s.chipBorderRadius),
           border: Border.all(
             color: active ? s.chipActiveBorderColor : s.dividerColor,
@@ -216,11 +257,13 @@ class _AddEntryDialogState extends State<AddEntryDialog> {
           ),
           const SizedBox(width: 8),
           GestureDetector(
-            onTap: _submit,
+            onTap: _isValueValid ? _submit : null,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: s.confirmBackgroundColor,
+                color: _isValueValid
+                    ? s.confirmBackgroundColor
+                    : s.confirmBackgroundColor.withValues(alpha: 0.4),
                 borderRadius: BorderRadius.circular(s.confirmBorderRadius),
               ),
               child: Text(

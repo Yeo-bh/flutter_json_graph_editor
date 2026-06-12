@@ -1,18 +1,29 @@
-/// primitive entry 값 타입
-enum PrimitiveEntryType { string, number, boolean, nullValue }
+import 'json_node.dart';
+
+enum PrimitiveEntryType { string, int64, double_, boolean, timestamp }
 
 extension PrimitiveEntryTypeExt on PrimitiveEntryType {
   String get label => switch (this) {
         PrimitiveEntryType.string => 'String',
-        PrimitiveEntryType.number => 'Number',
+        PrimitiveEntryType.int64 => 'Int64',
+        PrimitiveEntryType.double_ => 'Double',
         PrimitiveEntryType.boolean => 'Boolean',
-        PrimitiveEntryType.nullValue => 'Null',
+        PrimitiveEntryType.timestamp => 'Timestamp',
       };
 
   dynamic get defaultValue => switch (this) {
         PrimitiveEntryType.string => '',
-        PrimitiveEntryType.number => 0,
+        PrimitiveEntryType.int64 => 0,
+        PrimitiveEntryType.double_ => 0.0,
         PrimitiveEntryType.boolean => false,
-        PrimitiveEntryType.nullValue => null,
+        PrimitiveEntryType.timestamp => '',
+      };
+
+  EntryType get entryType => switch (this) {
+        PrimitiveEntryType.string => EntryType.string,
+        PrimitiveEntryType.int64 => EntryType.int64,
+        PrimitiveEntryType.double_ => EntryType.double_,
+        PrimitiveEntryType.boolean => EntryType.boolean,
+        PrimitiveEntryType.timestamp => EntryType.timestamp,
       };
 }

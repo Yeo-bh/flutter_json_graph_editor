@@ -1,4 +1,4 @@
-import '../models/json_node.dart';
+import '../../models/json_node.dart';
 
 /// JsonNode 트리의 collapse 상태를 관리하는 순수 함수 모음.
 /// EditorState._parse()에서 재파싱 시 기존 UI 상태를 보존하는 데 사용.

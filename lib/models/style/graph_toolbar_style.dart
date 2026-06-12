@@ -41,5 +41,29 @@ abstract class GraphToolbarStyle with _$GraphToolbarStyle {
 
     /// 구분선 좌우 마진(px).
     @Default(2.0) double dividerMarginHorizontal,
+
+    /// 활성 상태 아이콘 색 (검색 활성 등). 검색 바의 강조색으로도 사용.
+    @Default(Color(0xFF0366D6)) Color activeIconColor,
+
+    /// 검색 바 배경색.
+    @Default(Color(0xFFFFFFFF)) Color searchBarBackgroundColor,
+
+    /// 검색 바 그림자 색.
+    @Default(Color(0x1F000000)) Color searchBarShadowColor,
+
+    /// 검색 바 입력 텍스트 색.
+    @Default(Color(0xFF24292E)) Color searchBarTextColor,
+
+    /// 검색 바 힌트/닫기 아이콘 색.
+    @Default(Color(0xFF6A737D)) Color searchBarHintColor,
+
+    /// 검색 모드 칩 비활성 배경색.
+    @Default(Color(0xFFF1F3F4)) Color chipIdleBackgroundColor,
+
+    /// 검색 모드 칩 비활성 텍스트 색.
+    @Default(Color(0xFF586069)) Color chipIdleTextColor,
+
+    /// 검색 모드 칩 활성 텍스트 색. 활성 배경은 [activeIconColor].
+    @Default(Color(0xFFFFFFFF)) Color chipActiveTextColor,
   }) = _GraphToolbarStyle;
 }
