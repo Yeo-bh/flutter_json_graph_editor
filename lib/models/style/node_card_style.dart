@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../json_node.dart';
+
 part 'node_card_style.freezed.dart';
 
 @freezed
@@ -148,4 +150,15 @@ abstract class NodeCardStyle with _$NodeCardStyle {
   }) = _NodeCardStyle;
 
   static const NodeCardStyle defaults = NodeCardStyle();
+}
+
+extension NodeCardStyleColor on NodeCardStyle {
+  Color entryValueColor(EntryType type) => switch (type) {
+    EntryType.string => stringValueColor,
+    EntryType.int64 => numberValueColor,
+    EntryType.double_ => numberValueColor,
+    EntryType.boolean => booleanValueColor,
+    EntryType.timestamp => stringValueColor,
+    EntryType.nullValue => nullValueColor,
+  };
 }

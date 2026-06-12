@@ -34,6 +34,16 @@ class NodeEntryTileBody extends StatefulWidget {
     this.onSave,
   });
 
+  static dynamic rawFromEntry(NodeEntry entry) => switch (entry.type) {
+    EntryType.string ||
+    EntryType.timestamp =>
+        entry.displayValue.replaceAll('"', ''),
+    EntryType.int64 => int.tryParse(entry.displayValue),
+    EntryType.double_ => double.tryParse(entry.displayValue),
+    EntryType.boolean => entry.displayValue == 'true',
+    EntryType.nullValue => null,
+  };
+
   @override
   State<NodeEntryTileBody> createState() => _NodeEntryTileBodyState();
 }
@@ -181,17 +191,11 @@ class _NodeEntryTileBodyState extends State<NodeEntryTileBody> {
 
   Widget _buildDisplay() {
     final s = widget.style;
-    final Color valueColor = switch (widget.type) {
-      EntryType.string => s.stringValueColor,
-      EntryType.int64 => s.numberValueColor,
-      EntryType.double_ => s.numberValueColor,
-      EntryType.boolean => s.booleanValueColor,
-      EntryType.timestamp => s.stringValueColor,
-      EntryType.nullValue => s.nullValueColor,
-    };
-    final display = widget.type == EntryType.string
-        ? '"${widget.initialValue}"'
-        : _toText(widget.initialValue);
+    final valueColor = s.entryValueColor(widget.type);
+    final display =
+        widget.type == EntryType.string || widget.type == EntryType.timestamp
+            ? '"${widget.initialValue}"'
+            : _toText(widget.initialValue);
     return Text(
       display,
       style: TextStyle(

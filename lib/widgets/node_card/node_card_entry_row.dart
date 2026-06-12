@@ -52,7 +52,7 @@ class NodeCardEntryRow extends StatelessWidget {
             child: Text(
               entry.displayValue,
               style: TextStyle(
-                color: _valueColor(entry.type),
+                color: style.entryValueColor(entry.type),
                 fontSize: style.entryValueFontSize,
                 fontFamily: style.fontFamily,
               ),
@@ -63,13 +63,4 @@ class NodeCardEntryRow extends StatelessWidget {
       ),
     );
   }
-
-  Color _valueColor(EntryType type) => switch (type) {
-    EntryType.string => style.stringValueColor,
-    EntryType.int64 => style.numberValueColor,
-    EntryType.double_ => style.numberValueColor,
-    EntryType.boolean => style.booleanValueColor,
-    EntryType.timestamp => style.stringValueColor,
-    EntryType.nullValue => style.nullValueColor,
-  };
 }

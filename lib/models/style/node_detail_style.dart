@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../json_node.dart';
+
 part 'node_detail_style.freezed.dart';
 
 @freezed
@@ -149,4 +151,15 @@ abstract class NodeDetailStyle with _$NodeDetailStyle {
     /// 노드 삭제 아이콘 색.
     @Default(Color(0xFFF44336)) Color deleteIconColor,
   }) = _NodeDetailStyle;
+}
+
+extension NodeDetailStyleColor on NodeDetailStyle {
+  Color entryValueColor(EntryType type) => switch (type) {
+    EntryType.string => stringValueColor,
+    EntryType.int64 => numberValueColor,
+    EntryType.double_ => numberValueColor,
+    EntryType.boolean => booleanValueColor,
+    EntryType.timestamp => stringValueColor,
+    EntryType.nullValue => nullValueColor,
+  };
 }

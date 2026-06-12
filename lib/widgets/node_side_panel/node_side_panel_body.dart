@@ -6,6 +6,7 @@ import '../../state/editor_state.dart';
 import '../shared/confirm_dialog.dart';
 import 'add_entry_dialog.dart';
 import 'node_entry_tile.dart';
+import 'node_entry_tile_body.dart';
 
 /// 사이드 패널의 스크롤 가능한 본문 영역.
 /// 메타 정보, Properties 섹션(entry 목록 + 추가/삭제)을 포함하며,
@@ -38,15 +39,6 @@ class _NodeSidePanelBodyState extends State<NodeSidePanelBody> {
   dynamic _pendingEditValue;
   bool _pendingEditValid = true;
 
-  static dynamic _rawFromEntry(NodeEntry entry) => switch (entry.type) {
-    EntryType.string ||
-    EntryType.timestamp => entry.displayValue.replaceAll('"', ''),
-    EntryType.int64 => int.tryParse(entry.displayValue),
-    EntryType.double_ => double.tryParse(entry.displayValue),
-    EntryType.boolean => entry.displayValue == 'true',
-    EntryType.nullValue => null,
-  };
-
   @override
   void dispose() {
     _editController?.dispose();
@@ -58,7 +50,7 @@ class _NodeSidePanelBodyState extends State<NodeSidePanelBody> {
       _editingKey = entry.navigationKey;
       _editingField = 'value';
       _editingType = entry.type;
-      _pendingEditValue = _rawFromEntry(entry);
+      _pendingEditValue = NodeEntryTileBody.rawFromEntry(entry);
       _pendingEditValid = true;
       _editController?.dispose();
       _editController = null;

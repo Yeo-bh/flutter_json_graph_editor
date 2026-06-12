@@ -44,27 +44,9 @@ class NodeEntryTile extends StatelessWidget {
     required this.style,
   });
 
-  static dynamic _rawFromEntry(NodeEntry entry) => switch (entry.type) {
-    EntryType.string || EntryType.timestamp =>
-        entry.displayValue.replaceAll('"', ''),
-    EntryType.int64 => int.tryParse(entry.displayValue),
-    EntryType.double_ => double.tryParse(entry.displayValue),
-    EntryType.boolean => entry.displayValue == 'true',
-    EntryType.nullValue => null,
-  };
-
   @override
   Widget build(BuildContext context) {
     final s = style;
-
-    final Color valueColor = switch (entry.type) {
-      EntryType.string => s.stringValueColor,
-      EntryType.int64 => s.numberValueColor,
-      EntryType.double_ => s.numberValueColor,
-      EntryType.boolean => s.booleanValueColor,
-      EntryType.timestamp => s.stringValueColor,
-      EntryType.nullValue => s.nullValueColor,
-    };
 
     // 타일 카드 + 우측 X 버튼
     return Row(
@@ -174,19 +156,21 @@ class NodeEntryTile extends StatelessWidget {
                         child: isEditingValue
                             ? NodeEntryTileBody(
                                 type: editingType ?? entry.type,
-                                initialValue: _rawFromEntry(entry),
+                                initialValue: NodeEntryTileBody.rawFromEntry(
+                                  entry,
+                                ),
                                 isEditing: true,
                                 style: style,
                                 onChanged: onValueChanged,
                                 onSave: onSaveEditValue,
                               )
-                            : Text(
-                                entry.displayValue,
-                                style: TextStyle(
-                                  color: valueColor,
-                                  fontSize: s.entryValueFontSize,
-                                  fontFamily: s.fontFamily,
+                            : NodeEntryTileBody(
+                                type: entry.type,
+                                initialValue: NodeEntryTileBody.rawFromEntry(
+                                  entry,
                                 ),
+                                isEditing: false,
+                                style: style,
                               ),
                       ),
                     ),
