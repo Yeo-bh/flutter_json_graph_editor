@@ -3,7 +3,6 @@ import '../../models/style/add_child_dialog_style.dart';
 import '../../models/json_node.dart';
 import '../../models/style/node_detail_style.dart';
 import '../../state/editor_state.dart';
-import '../../core/utils/json_value_parser.dart';
 import '../shared/confirm_dialog.dart';
 import 'add_entry_dialog.dart';
 import 'node_entry_tile.dart';
@@ -36,6 +35,17 @@ class _NodeSidePanelBodyState extends State<NodeSidePanelBody> {
   String? _editingField;
   TextEditingController? _editController;
   EntryType? _editingType;
+  dynamic _pendingEditValue;
+  bool _pendingEditValid = true;
+
+  static dynamic _rawFromEntry(NodeEntry entry) => switch (entry.type) {
+    EntryType.string ||
+    EntryType.timestamp => entry.displayValue.replaceAll('"', ''),
+    EntryType.int64 => int.tryParse(entry.displayValue),
+    EntryType.double_ => double.tryParse(entry.displayValue),
+    EntryType.boolean => entry.displayValue == 'true',
+    EntryType.nullValue => null,
+  };
 
   @override
   void dispose() {
@@ -43,36 +53,30 @@ class _NodeSidePanelBodyState extends State<NodeSidePanelBody> {
     super.dispose();
   }
 
-  // string 타입은 따옴표 제거 후 편집기에 노출
   void _startEditValue(NodeEntry entry) {
-    final initial = entry.type == EntryType.string
-        ? entry.displayValue.replaceAll('"', '')
-        : entry.displayValue;
     setState(() {
       _editingKey = entry.navigationKey;
       _editingField = 'value';
       _editingType = entry.type;
+      _pendingEditValue = _rawFromEntry(entry);
+      _pendingEditValid = true;
       _editController?.dispose();
-      _editController = TextEditingController(text: initial);
+      _editController = null;
     });
   }
 
   void _saveEditValue(NodeEntry entry) {
-    final newValue = coerceToType(
-      _editController!.text.trim(),
-      _editingType ?? entry.type,
-    );
     widget.state.updateEntryAtPath(
       widget.nodePath,
       entry.navigationKey,
-      newValue,
+      _pendingEditValue,
     );
     setState(() {
       _editingKey = null;
       _editingField = null;
       _editingType = null;
-      _editController?.dispose();
-      _editController = null;
+      _pendingEditValue = null;
+      _pendingEditValid = true;
     });
   }
 
@@ -126,6 +130,7 @@ class _NodeSidePanelBodyState extends State<NodeSidePanelBody> {
         nodePath: widget.nodePath,
         state: widget.state,
         style: widget.addChildDialogStyle,
+        valueStyle: widget.style,
       ),
     );
   }
@@ -163,6 +168,15 @@ class _NodeSidePanelBodyState extends State<NodeSidePanelBody> {
                     ? _editingType
                     : null,
                 onTypeChanged: (t) => setState(() => _editingType = t),
+                isEditValueValid:
+                    _editingKey == entry.navigationKey &&
+                        _editingField == 'value'
+                    ? _pendingEditValid
+                    : true,
+                onValueChanged: (v, valid) => setState(() {
+                  _pendingEditValue = v;
+                  _pendingEditValid = valid;
+                }),
                 onStartEditKey: () => _startEditKey(entry),
                 onStartEditValue: () => _startEditValue(entry),
                 onSaveEditKey: () => _saveEditKey(entry),
