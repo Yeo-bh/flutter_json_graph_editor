@@ -112,6 +112,15 @@ class _NodeEntryTileBodyState extends State<NodeEntryTileBody> {
   }
 
   Future<void> _pickDateTime() async {
+    final isDark = widget.style.backgroundColor.computeLuminance() < 0.5;
+    final colorScheme = isDark
+        ? ColorScheme.dark(primary: widget.style.headerBadgeTextColor)
+        : ColorScheme.light(primary: widget.style.headerBadgeTextColor);
+    Widget wrap(Widget? child) => Theme(
+      data: ThemeData(colorScheme: colorScheme),
+      child: child!,
+    );
+
     DateTime initial = DateTime.now();
     if (_controller.text.isNotEmpty) {
       initial = DateTime.tryParse(_controller.text) ?? initial;
@@ -121,11 +130,13 @@ class _NodeEntryTileBodyState extends State<NodeEntryTileBody> {
       initialDate: initial,
       firstDate: DateTime(1970),
       lastDate: DateTime(2100),
+      builder: (_, child) => wrap(child),
     );
     if (date == null || !mounted) return;
     final time = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.fromDateTime(initial),
+      builder: (_, child) => wrap(child),
     );
     if (!mounted) return;
     final combined = time == null
@@ -322,16 +333,16 @@ class _NodeEntryTileBodyState extends State<NodeEntryTileBody> {
             onSubmitted: (_) => widget.onSave?.call(),
           ),
         ),
-        GestureDetector(
-          onTap: _pickDateTime,
-          child: Padding(
-            padding: const EdgeInsets.only(left: 4),
-            child: Icon(
-              Icons.calendar_today_outlined,
-              size: 16,
-              color: s.metaLabelColor,
-            ),
+        IconButton(
+          onPressed: _pickDateTime,
+          tooltip: '날짜/시간 선택',
+          icon: Icon(
+            Icons.calendar_today_outlined,
+            size: 16,
+            color: s.metaLabelColor,
           ),
+          padding: const EdgeInsets.all(4),
+          constraints: const BoxConstraints(),
         ),
       ],
     );
