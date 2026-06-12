@@ -95,6 +95,9 @@ String? formatJson(String text) {
   }
 }
 
+// ISO 8601 datetime 패턴: YYYY-MM-DDTHH:MM 으로 시작하는 문자열
+final _iso8601 = RegExp(r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}');
+
 // 값을 NodeEntry로 변환 (타입 판별 + 표시 문자열 생성)
 NodeEntry _makeEntry(String key, String navigationKey, dynamic value) {
   if (value == null) {
@@ -105,6 +108,8 @@ NodeEntry _makeEntry(String key, String navigationKey, dynamic value) {
     return NodeEntry(key: key, navigationKey: navigationKey, displayValue: value.toString(), type: EntryType.int64);
   } else if (value is double) {
     return NodeEntry(key: key, navigationKey: navigationKey, displayValue: value.toString(), type: EntryType.double_);
+  } else if (value is String && _iso8601.hasMatch(value)) {
+    return NodeEntry(key: key, navigationKey: navigationKey, displayValue: '"$value"', type: EntryType.timestamp);
   } else {
     return NodeEntry(key: key, navigationKey: navigationKey, displayValue: '"$value"', type: EntryType.string);
   }
