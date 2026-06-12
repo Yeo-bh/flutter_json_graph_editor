@@ -124,7 +124,20 @@ class _NodeEntryTileBodyState extends State<NodeEntryTileBody> {
       onSecondaryContainer: Colors.white,
     );
     Widget wrap(Widget? child) => Theme(
-      data: Theme.of(context).copyWith(colorScheme: colorScheme),
+      data: Theme.of(context).copyWith(
+        colorScheme: colorScheme,
+        timePickerTheme: TimePickerThemeData(
+          dayPeriodColor: WidgetStateColor.resolveWith(
+            (states) =>
+                states.contains(WidgetState.selected) ? c : Colors.transparent,
+          ),
+          dayPeriodTextColor: WidgetStateColor.resolveWith(
+            (states) => states.contains(WidgetState.selected)
+                ? Colors.white
+                : colorScheme.onSurface,
+          ),
+        ),
+      ),
       child: child!,
     );
 
