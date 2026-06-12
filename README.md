@@ -74,6 +74,50 @@ final json = context.read<EditorState>().jsonText;
 
 ---
 
+## 변경 콜백 (onChanged)
+
+버튼 없이 JSON이 수정될 때마다 자동으로 값을 받으려면 `onChanged`를 사용한다.
+
+### JsonEditorWidget
+
+```dart
+JsonEditorWidget(
+  initialJson: '{"name": "flutter"}',
+  onChanged: (dynamic json) {
+    // json은 Map<String, dynamic> 또는 List<dynamic>
+    print(json);
+  },
+)
+```
+
+JSON이 유효할 때만 호출된다. 텍스트 에디터 수정과 그래프 노드 수정 모두 트리거한다.
+
+### JsonEditorTabView
+
+`JsonEditorTabController`의 `onChanged`로 모든 탭의 변경을 수신한다:
+
+```dart
+final controller = JsonEditorTabController(
+  initialTabs: [
+    (name: 'user.json', initialJson: '{"id": 1}'),
+    (name: 'config.json', initialJson: '{"debug": true}'),
+  ],
+  onChanged: (String tabId, dynamic json) {
+    print('탭 $tabId 변경: $json');
+  },
+);
+```
+
+생성 후 세팅도 가능하다:
+
+```dart
+controller.onChanged = (tabId, json) { ... };
+```
+
+탭 추가/제거 시 listener가 자동으로 등록·해제된다.
+
+---
+
 ## 툴바 커스텀 버튼
 
 `extraActions` 로 그래프 툴바에 버튼을 추가한다:

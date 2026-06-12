@@ -73,6 +73,50 @@ final json = context.read<EditorState>().jsonText;
 
 ---
 
+## Change callback (onChanged)
+
+To receive the JSON value automatically on every edit — without a button — use `onChanged`.
+
+### JsonEditorWidget
+
+```dart
+JsonEditorWidget(
+  initialJson: '{"name": "flutter"}',
+  onChanged: (dynamic json) {
+    // json is Map<String, dynamic> or List<dynamic>
+    print(json);
+  },
+)
+```
+
+Only fires when the JSON is valid. Triggers on both text editor edits and graph node mutations.
+
+### JsonEditorTabView
+
+Listen to all tabs through `JsonEditorTabController.onChanged`:
+
+```dart
+final controller = JsonEditorTabController(
+  initialTabs: [
+    (name: 'user.json', initialJson: '{"id": 1}'),
+    (name: 'config.json', initialJson: '{"debug": true}'),
+  ],
+  onChanged: (String tabId, dynamic json) {
+    print('tab $tabId changed: $json');
+  },
+);
+```
+
+Can also be set after construction:
+
+```dart
+controller.onChanged = (tabId, json) { ... };
+```
+
+Listeners are registered and removed automatically when tabs are added or removed.
+
+---
+
 ## Custom toolbar actions
 
 Add buttons to the graph toolbar via `extraActions`:

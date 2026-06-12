@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/json_editor_style.dart';
@@ -11,6 +13,7 @@ import 'split_view/split_view.dart';
 /// [style]로 전체 테마를 한 번에 제어하고,
 /// [extraActions]로 툴바에 버튼을 추가할 수 있다.
 /// [externalState]를 제공하면 내부 EditorState 대신 외부 인스턴스를 사용한다.
+/// [onChanged]는 JSON이 유효하게 수정될 때마다 파싱된 dynamic 값을 전달한다.
 class JsonEditorWidget extends StatefulWidget {
   /// 에디터 전체 시각적 스타일. 기본값은 라이트 테마.
   final JsonEditorStyle style;
@@ -25,12 +28,16 @@ class JsonEditorWidget extends StatefulWidget {
   /// 외부에서 생성한 EditorState. 제공 시 위젯이 직접 state를 소유하지 않는다.
   final EditorState? externalState;
 
+  /// JSON이 유효하게 변경될 때마다 호출. Map 또는 List 형태의 dynamic 값을 전달.
+  final ValueChanged<dynamic>? onChanged;
+
   JsonEditorWidget({
     super.key,
     JsonEditorStyle? style,
     this.extraActions = const [],
     this.initialJson,
     this.externalState,
+    this.onChanged,
   }) : style = style ?? JsonEditorStyle();
 
   @override
@@ -40,6 +47,8 @@ class JsonEditorWidget extends StatefulWidget {
 class _JsonEditorWidgetState extends State<JsonEditorWidget> {
   final _splitViewKey = GlobalKey<SplitViewState>();
   EditorState? _ownedState;
+
+  EditorState get _activeState => widget.externalState ?? _ownedState!;
 
   @override
   void initState() {
@@ -51,10 +60,34 @@ class _JsonEditorWidgetState extends State<JsonEditorWidget> {
         collapseEntriesByDefault: widget.style.collapseEntriesByDefault,
       );
     }
+    if (widget.onChanged != null) {
+      _activeState.addListener(_onStateChanged);
+    }
+  }
+
+  @override
+  void didUpdateWidget(JsonEditorWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.onChanged != widget.onChanged) {
+      _activeState.removeListener(_onStateChanged);
+      if (widget.onChanged != null) {
+        _activeState.addListener(_onStateChanged);
+      }
+    }
+  }
+
+  void _onStateChanged() {
+    final state = _activeState;
+    if (state.error != null || widget.onChanged == null) return;
+    try {
+      final parsed = jsonDecode(state.jsonText);
+      widget.onChanged!(parsed);
+    } catch (_) {}
   }
 
   @override
   void dispose() {
+    _activeState.removeListener(_onStateChanged);
     _ownedState?.dispose();
     super.dispose();
   }

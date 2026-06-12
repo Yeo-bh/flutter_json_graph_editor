@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import '../models/json_editor_tab.dart';
 import 'editor_state.dart';
@@ -5,7 +7,11 @@ import 'editor_state.dart';
 class JsonEditorTabController extends ChangeNotifier {
   final List<JsonEditorTab> _tabs = [];
   final Map<String, EditorState> _states = {};
+  final Map<String, VoidCallback> _listeners = {};
   int _activeIndex = 0;
+
+  /// 특정 탭의 JSON이 유효하게 변경될 때마다 호출. tabId와 파싱된 dynamic 값 전달.
+  void Function(String tabId, dynamic json)? onChanged;
 
   List<JsonEditorTab> get tabs => List.unmodifiable(_tabs);
   int get activeIndex => _activeIndex;
@@ -20,6 +26,7 @@ class JsonEditorTabController extends ChangeNotifier {
 
   JsonEditorTabController({
     List<({String name, String? initialJson})> initialTabs = const [],
+    this.onChanged,
   }) {
     if (initialTabs.isEmpty) {
       _addTabInternal(name: 'Tab 1');
@@ -42,6 +49,7 @@ class JsonEditorTabController extends ChangeNotifier {
   void removeTab(String tabId) {
     final idx = _tabs.indexWhere((t) => t.id == tabId);
     if (idx == -1 || _tabs.length == 1) return;
+    _detachListener(tabId);
     _tabs.removeAt(idx);
     _states.remove(tabId);
     if (_activeIndex >= _tabs.length) _activeIndex = _tabs.length - 1;
@@ -64,11 +72,33 @@ class JsonEditorTabController extends ChangeNotifier {
   void _addTabInternal({required String name, String? initialJson}) {
     final id = '${DateTime.now().microsecondsSinceEpoch}_${_tabs.length}';
     _tabs.add(JsonEditorTab(id: id, name: name));
-    _states[id] = EditorState(initialJson: initialJson);
+    final state = EditorState(initialJson: initialJson);
+    _states[id] = state;
+    void listener() => _onStateChanged(id);
+    _listeners[id] = listener;
+    state.addListener(listener);
+  }
+
+  void _onStateChanged(String tabId) {
+    final cb = onChanged;
+    if (cb == null) return;
+    final state = _states[tabId];
+    if (state == null || state.error != null) return;
+    try {
+      cb(tabId, jsonDecode(state.jsonText));
+    } catch (_) {}
+  }
+
+  void _detachListener(String tabId) {
+    final listener = _listeners.remove(tabId);
+    if (listener != null) _states[tabId]?.removeListener(listener);
   }
 
   @override
   void dispose() {
+    for (final tabId in _listeners.keys.toList()) {
+      _detachListener(tabId);
+    }
     for (final state in _states.values) {
       state.dispose();
     }

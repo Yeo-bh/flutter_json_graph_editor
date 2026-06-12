@@ -1,3 +1,5 @@
+import 'dart:developer' as dev;
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:json_graph_editor/json_graph_editor.dart';
@@ -45,6 +47,9 @@ class _HomeState extends State<_Home> {
       (name: 'sample.json', initialJson: null),
       (name: 'config.json', initialJson: '{"env":"production","debug":false}'),
     ],
+    onChanged: (String tabId, dynamic json) {
+      dev.log('[$tabId] $json', name: 'onChanged');
+    },
   );
 
   @override
