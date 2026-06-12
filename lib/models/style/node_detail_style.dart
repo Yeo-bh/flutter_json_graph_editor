@@ -142,5 +142,11 @@ abstract class NodeDetailStyle with _$NodeDetailStyle {
 
     /// 패널 전체에 적용되는 폰트 패밀리.
     @Default('monospace') String fontFamily,
+
+    /// 패널 왼쪽 외곽 그림자 색.
+    @Default(Color(0x14000000)) Color panelShadowColor,
+
+    /// 노드 삭제 아이콘 색.
+    @Default(Color(0xFFF44336)) Color deleteIconColor,
   }) = _NodeDetailStyle;
 }

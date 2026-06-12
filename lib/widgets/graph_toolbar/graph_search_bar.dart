@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../utils/node_searcher.dart';
+import '../../models/style/graph_toolbar_style.dart';
+import '../../core/utils/node_searcher.dart';
 
 /// 툴바 위에 표시되는 검색 입력창 + 필터 칩
 class GraphSearchBar extends StatefulWidget {
@@ -8,6 +9,7 @@ class GraphSearchBar extends StatefulWidget {
   final ValueChanged<String> onQueryChanged;
   final ValueChanged<SearchMode> onModeChanged;
   final VoidCallback onClose;
+  final GraphToolbarStyle style;
 
   const GraphSearchBar({
     super.key,
@@ -16,6 +18,7 @@ class GraphSearchBar extends StatefulWidget {
     required this.onQueryChanged,
     required this.onModeChanged,
     required this.onClose,
+    this.style = const GraphToolbarStyle(),
   });
 
   @override
@@ -41,15 +44,16 @@ class _GraphSearchBarState extends State<GraphSearchBar> {
 
   @override
   Widget build(BuildContext context) {
+    final s = widget.style;
     return Container(
       width: 340,
       padding: const EdgeInsets.fromLTRB(12, 10, 8, 10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: s.searchBarBackgroundColor,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.12),
+            color: s.searchBarShadowColor,
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -64,17 +68,17 @@ class _GraphSearchBarState extends State<GraphSearchBar> {
                 child: TextField(
                   controller: _controller,
                   autofocus: true,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
-                    color: Color(0xFF24292E),
+                    color: s.searchBarTextColor,
                   ),
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     isDense: true,
                     contentPadding: EdgeInsets.zero,
                     border: InputBorder.none,
                     hintText: '검색어 입력...',
                     hintStyle: TextStyle(
-                      color: Color(0xFF6A737D),
+                      color: s.searchBarHintColor,
                       fontSize: 13,
                     ),
                   ),
@@ -87,9 +91,9 @@ class _GraphSearchBarState extends State<GraphSearchBar> {
                   padding: const EdgeInsets.only(right: 4),
                   child: Text(
                     '${widget.matchCount}개',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11,
-                      color: Color(0xFF0366D6),
+                      color: s.activeIconColor,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -97,10 +101,10 @@ class _GraphSearchBarState extends State<GraphSearchBar> {
               IconButton(
                 onPressed: _submit,
                 tooltip: '검색',
-                icon: const Icon(
+                icon: Icon(
                   Icons.search,
                   size: 14,
-                  color: Color(0xFF0366D6),
+                  color: s.activeIconColor,
                 ),
                 style: IconButton.styleFrom(
                   shape: const CircleBorder(),
@@ -110,10 +114,10 @@ class _GraphSearchBarState extends State<GraphSearchBar> {
               ),
               IconButton(
                 onPressed: widget.onClose,
-                icon: const Icon(
+                icon: Icon(
                   Icons.close,
                   size: 14,
-                  color: Color(0xFF6A737D),
+                  color: s.searchBarHintColor,
                 ),
                 style: IconButton.styleFrom(
                   shape: const CircleBorder(),
@@ -138,8 +142,8 @@ class _GraphSearchBarState extends State<GraphSearchBar> {
                     ),
                     decoration: BoxDecoration(
                       color: active
-                          ? const Color(0xFF0366D6)
-                          : const Color(0xFFF1F3F4),
+                          ? s.activeIconColor
+                          : s.chipIdleBackgroundColor,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
@@ -148,8 +152,8 @@ class _GraphSearchBarState extends State<GraphSearchBar> {
                         fontSize: 11,
                         fontWeight: FontWeight.w500,
                         color: active
-                            ? Colors.white
-                            : const Color(0xFF586069),
+                            ? s.chipActiveTextColor
+                            : s.chipIdleTextColor,
                       ),
                     ),
                   ),

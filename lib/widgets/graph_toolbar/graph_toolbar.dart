@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../models/graph_toolbar_style.dart';
+import '../../models/style/graph_toolbar_style.dart';
 
 // 툴바에 추가할 버튼 하나를 정의하는 데이터 클래스
 // onTap에 BuildContext를 전달하므로 Provider 등 위젯 트리 접근 가능
@@ -34,6 +34,12 @@ class GraphToolbar extends StatelessWidget {
   /// 검색 활성 여부 (검색 버튼 강조 표시에 사용)
   final bool searchActive;
 
+  /// 라이트/다크 테마 토글 콜백. null이면 버튼 미표시.
+  final VoidCallback? onToggleTheme;
+
+  /// 현재 다크 모드 여부 (토글 버튼 아이콘 결정에 사용)
+  final bool isDark;
+
   /// 사용자 정의 버튼 목록. 기본 줌 버튼 오른쪽에 구분선과 함께 추가됨
   final List<GraphToolbarAction> extraActions;
 
@@ -47,6 +53,8 @@ class GraphToolbar extends StatelessWidget {
     this.onToggleEditorPanel,
     this.onToggleSearch,
     this.searchActive = false,
+    this.onToggleTheme,
+    this.isDark = false,
     this.extraActions = const [],
     this.style = const GraphToolbarStyle(),
   });
@@ -132,8 +140,20 @@ class GraphToolbar extends StatelessWidget {
               tooltip: '검색',
               onTap: onToggleSearch!,
               iconColor: searchActive
-                  ? const Color(0xFF0366D6)
+                  ? style.activeIconColor
                   : style.iconColor,
+              iconSize: style.iconSize,
+              buttonPadding: style.buttonPadding,
+              borderRadius: style.borderRadius,
+            ),
+          ],
+          if (onToggleTheme != null) ...[
+            _vDivider(),
+            _ToolbarBtn(
+              icon: isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
+              tooltip: isDark ? '라이트 모드' : '다크 모드',
+              onTap: onToggleTheme!,
+              iconColor: style.iconColor,
               iconSize: style.iconSize,
               buttonPadding: style.buttonPadding,
               borderRadius: style.borderRadius,

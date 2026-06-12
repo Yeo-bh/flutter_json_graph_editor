@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/json_node.dart';
+import '../../models/json_node.dart';
 
 // 트리 전체의 bounding rect 계산 (SizedBox 크기 및 fit 계산에 공유)
 Rect computeBounds(JsonNode node) {

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import '../../models/style/add_child_dialog_style.dart';
 import '../../models/json_node.dart';
-import '../../models/node_detail_style.dart';
+import '../../models/style/node_detail_style.dart';
 import '../../state/editor_state.dart';
-import '../../utils/node_finder.dart';
+import '../../core/utils/node_finder.dart';
 import 'node_side_panel_body.dart';
 import 'node_side_panel_header.dart';
 import 'node_side_panel_toolbar.dart';
@@ -14,6 +15,7 @@ class NodeSidePanel extends StatefulWidget {
   final EditorState state;
   final VoidCallback onClose;
   final NodeDetailStyle style;
+  final AddChildDialogStyle addChildDialogStyle;
 
   const NodeSidePanel({
     super.key,
@@ -21,6 +23,7 @@ class NodeSidePanel extends StatefulWidget {
     required this.state,
     required this.onClose,
     this.style = const NodeDetailStyle(),
+    this.addChildDialogStyle = const AddChildDialogStyle(),
   });
 
   @override
@@ -111,7 +114,7 @@ class _NodeSidePanelState extends State<NodeSidePanel> {
         border: Border(left: BorderSide(color: s.dividerColor)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
+            color: s.panelShadowColor,
             blurRadius: 12,
             offset: const Offset(-4, 0),
           ),
@@ -151,6 +154,7 @@ class _NodeSidePanelState extends State<NodeSidePanel> {
               nodePath: _nodePath,
               state: widget.state,
               style: s,
+              addChildDialogStyle: widget.addChildDialogStyle,
             ),
           ),
         ],

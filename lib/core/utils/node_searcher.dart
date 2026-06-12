@@ -1,4 +1,4 @@
-import '../models/json_node.dart';
+import '../../models/json_node.dart';
 
 enum SearchMode {
   all,

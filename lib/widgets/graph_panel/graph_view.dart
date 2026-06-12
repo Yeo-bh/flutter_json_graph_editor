@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../models/add_child_dialog_style.dart';
-import '../../models/edge_style.dart';
+import '../../models/style/add_child_dialog_style.dart';
+import '../../models/style/edge_style.dart';
 import '../../models/json_node.dart';
-import '../../models/node_card_style.dart';
+import '../../models/style/node_card_style.dart';
 import '../../state/editor_state.dart';
-import '../../utils/graph_transform.dart';
+import '../../core/utils/graph_transform.dart';
 import '../edge_painter/edge_painter.dart';
 import '../node_card/node_card.dart';
 import 'add_node_button.dart';

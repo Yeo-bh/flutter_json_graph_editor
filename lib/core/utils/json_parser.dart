@@ -1,5 +1,5 @@
 import 'dart:convert';
-import '../models/json_node.dart';
+import '../../models/json_node.dart';
 
 // 파싱할 때마다 새로운 ID를 부여하기 위한 카운터
 int _idCounter = 0;

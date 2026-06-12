@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import '../models/json_node.dart';
-import '../utils/collapse_manager.dart';
-import '../utils/default_json.dart';
-import '../utils/json_mutator.dart';
-import '../utils/json_parser.dart';
-import '../utils/node_finder.dart';
-import '../utils/tree_layout.dart';
+import '../core/utils/collapse_manager.dart';
+import '../core/utils/default_json.dart';
+import '../core/utils/json_mutator.dart';
+import '../core/utils/json_parser.dart';
+import '../core/utils/node_finder.dart';
+import '../core/utils/tree_layout.dart';
 
 // 앱 전체 상태를 관리하는 클래스 (Provider로 위젯 트리에 공유)
 // ChangeNotifier: 상태가 바뀔 때 notifyListeners() 호출 → 구독 위젯 리빌드

@@ -1,19 +1,25 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import '../../models/style/json_editor_tab_bar_style.dart';
 import '../../state/json_editor_tab_controller.dart';
 import 'add_tab_button.dart';
 import 'tab_item.dart';
 
 class JsonEditorTabBar extends StatelessWidget {
   final JsonEditorTabController controller;
+  final JsonEditorTabBarStyle style;
 
-  const JsonEditorTabBar({super.key, required this.controller});
+  const JsonEditorTabBar({
+    super.key,
+    required this.controller,
+    this.style = const JsonEditorTabBarStyle(),
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       height: 38,
-      color: const Color(0xFFF0F0F0),
+      color: style.backgroundColor,
       child: Row(
         children: [
           Expanded(
@@ -34,6 +40,7 @@ class JsonEditorTabBar extends StatelessWidget {
                   return TabItem(
                     label: tab.name,
                     isActive: isActive,
+                    style: style,
                     onTap: () => controller.setActive(i),
                     onRename: (name) => controller.renameTab(tab.id, name),
                     onClose: controller.tabs.length > 1
@@ -44,7 +51,7 @@ class JsonEditorTabBar extends StatelessWidget {
               ),
             ),
           ),
-          AddTabButton(onTap: () => controller.addTab()),
+          AddTabButton(onTap: () => controller.addTab(), iconColor: style.addIconColor),
         ],
       ),
     );

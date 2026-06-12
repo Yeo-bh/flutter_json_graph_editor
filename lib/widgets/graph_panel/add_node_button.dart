@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../models/add_child_dialog_style.dart';
+import '../../models/style/add_child_dialog_style.dart';
 import '../../models/json_node.dart';
-import '../../models/node_card_style.dart';
+import '../../models/style/node_card_style.dart';
 import '../../state/editor_state.dart';
 import '../add_child_dialog/add_child_dialog.dart';
 

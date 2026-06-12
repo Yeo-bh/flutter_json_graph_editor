@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/json_node.dart';
-import '../../models/node_card_style.dart';
+import '../../models/style/node_card_style.dart';
 
 // 카드 상단 헤더: 타입 뱃지 + 라벨 + 자식 접기/펼치기 버튼
 // onToggleEntries가 있으면 헤더 전체 클릭 → entries 접기/펼치기

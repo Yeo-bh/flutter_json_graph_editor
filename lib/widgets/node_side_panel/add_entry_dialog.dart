@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../models/add_child_dialog_style.dart';
+import '../../models/style/add_child_dialog_style.dart';
 import '../../models/json_node.dart';
 import '../../models/primitive_entry_type.dart';
 import '../../state/editor_state.dart';
@@ -94,7 +94,11 @@ class _AddEntryDialogState extends State<AddEntryDialog> {
           ),
           GestureDetector(
             onTap: () => Navigator.of(context).pop(),
-            child: Icon(Icons.close, size: s.closeIconSize, color: s.closeIconColor),
+            child: Icon(
+              Icons.close,
+              size: s.closeIconSize,
+              color: s.closeIconColor,
+            ),
           ),
         ],
       ),
@@ -175,7 +179,9 @@ class _AddEntryDialogState extends State<AddEntryDialog> {
       child: Container(
         padding: s.chipPadding,
         decoration: BoxDecoration(
-          color: active ? s.chipActiveBackgroundColor : s.chipIdleBackgroundColor,
+          color: active
+              ? s.chipActiveBackgroundColor
+              : s.chipIdleBackgroundColor,
           borderRadius: BorderRadius.circular(s.chipBorderRadius),
           border: Border.all(
             color: active ? s.chipActiveBorderColor : s.dividerColor,

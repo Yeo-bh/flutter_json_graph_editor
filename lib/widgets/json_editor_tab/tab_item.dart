@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../models/style/json_editor_tab_bar_style.dart';
 
 class TabItem extends StatefulWidget {
   final String label;
@@ -6,6 +7,7 @@ class TabItem extends StatefulWidget {
   final VoidCallback onTap;
   final VoidCallback? onClose;
   final ValueChanged<String> onRename;
+  final JsonEditorTabBarStyle style;
 
   const TabItem({
     super.key,
@@ -14,6 +16,7 @@ class TabItem extends StatefulWidget {
     required this.onTap,
     required this.onRename,
     this.onClose,
+    this.style = const JsonEditorTabBarStyle(),
   });
 
   @override
@@ -69,6 +72,7 @@ class _TabItemState extends State<TabItem> {
 
   @override
   Widget build(BuildContext context) {
+    final s = widget.style;
     return GestureDetector(
       onTap: widget.onTap,
       onDoubleTap: _startEditing,
@@ -77,12 +81,12 @@ class _TabItemState extends State<TabItem> {
         margin: const EdgeInsets.only(top: 4, left: 2, right: 2),
         padding: const EdgeInsets.symmetric(horizontal: 12),
         decoration: BoxDecoration(
-          color: widget.isActive ? Colors.white : const Color(0xFFE0E0E0),
+          color: widget.isActive ? s.activeTabColor : s.inactiveTabColor,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
           boxShadow: widget.isActive
               ? [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.08),
+                    color: s.activeTabShadowColor,
                     blurRadius: 2,
                     offset: const Offset(0, -1),
                   ),
@@ -101,10 +105,10 @@ class _TabItemState extends State<TabItem> {
                       child: TextField(
                         controller: _textCtrl,
                         focusNode: _focusNode,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF1A1A1A),
+                          color: s.activeTextColor,
                         ),
                         decoration: const InputDecoration(
                           isDense: true,
@@ -123,8 +127,8 @@ class _TabItemState extends State<TabItem> {
                             ? FontWeight.w600
                             : FontWeight.normal,
                         color: widget.isActive
-                            ? const Color(0xFF1A1A1A)
-                            : const Color(0xFF666666),
+                            ? s.activeTextColor
+                            : s.inactiveTextColor,
                       ),
                     ),
             ),
@@ -136,8 +140,8 @@ class _TabItemState extends State<TabItem> {
                   Icons.close,
                   size: 13,
                   color: widget.isActive
-                      ? const Color(0xFF666666)
-                      : const Color(0xFF999999),
+                      ? s.activeCloseIconColor
+                      : s.inactiveCloseIconColor,
                 ),
               ),
             ],

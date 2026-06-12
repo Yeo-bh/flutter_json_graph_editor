@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/json_node.dart';
-import '../../models/node_detail_style.dart';
+import '../../models/style/node_detail_style.dart';
 
 /// 노드의 단일 entry(키-값 쌍)를 표시하는 카드 타일.
 /// 키(상단, bold)와 값(하단)을 분리 표시하며, 각 영역을 더블클릭하면 인라인 편집 모드로 전환된다.
@@ -198,7 +198,7 @@ class NodeEntryTile extends StatelessWidget {
                         initialValue: editingType,
                         onSelected: (t) => onTypeChanged?.call(t),
                         padding: EdgeInsets.zero,
-                        color: Colors.white,
+                        color: s.backgroundColor,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(6),
                           side: BorderSide(color: s.dividerColor),

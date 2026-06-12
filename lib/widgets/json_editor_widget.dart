@@ -2,7 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../models/json_editor_style.dart';
+import '../models/style/json_editor_style.dart';
+import '../core/json_editor_themes.dart';
 import '../state/editor_state.dart';
 import 'editor_panel/editor_panel.dart';
 import 'graph_panel/graph_panel.dart';
@@ -15,8 +16,17 @@ import 'split_view/split_view.dart';
 /// [externalState]를 제공하면 내부 EditorState 대신 외부 인스턴스를 사용한다.
 /// [onChanged]는 JSON이 유효하게 수정될 때마다 파싱된 dynamic 값을 전달한다.
 class JsonEditorWidget extends StatefulWidget {
-  /// 에디터 전체 시각적 스타일. 기본값은 라이트 테마.
+  /// 에디터 전체 시각적 스타일 (라이트 모드). 기본값은 [JsonEditorThemes.light].
   final JsonEditorStyle style;
+
+  /// 다크 모드 스타일. 기본값은 [JsonEditorThemes.dark].
+  final JsonEditorStyle darkStyle;
+
+  /// true면 툴바에 라이트/다크 토글 버튼 표시.
+  final bool enableThemeToggle;
+
+  /// 초기 다크 모드 여부.
+  final bool initialDarkMode;
 
   /// 그래프 패널 하단 툴바에 추가할 사용자 정의 버튼 목록.
   final List<GraphToolbarAction> extraActions;
@@ -34,11 +44,15 @@ class JsonEditorWidget extends StatefulWidget {
   JsonEditorWidget({
     super.key,
     JsonEditorStyle? style,
+    JsonEditorStyle? darkStyle,
+    this.enableThemeToggle = true,
+    this.initialDarkMode = false,
     this.extraActions = const [],
     this.initialJson,
     this.externalState,
     this.onChanged,
-  }) : style = style ?? JsonEditorStyle();
+  })  : style = style ?? JsonEditorThemes.light,
+        darkStyle = darkStyle ?? JsonEditorThemes.dark;
 
   @override
   State<JsonEditorWidget> createState() => _JsonEditorWidgetState();
@@ -47,12 +61,17 @@ class JsonEditorWidget extends StatefulWidget {
 class _JsonEditorWidgetState extends State<JsonEditorWidget> {
   final _splitViewKey = GlobalKey<SplitViewState>();
   EditorState? _ownedState;
+  late bool _isDark;
 
   EditorState get _activeState => widget.externalState ?? _ownedState!;
+
+  JsonEditorStyle get _effectiveStyle =>
+      _isDark ? widget.darkStyle : widget.style;
 
   @override
   void initState() {
     super.initState();
+    _isDark = widget.initialDarkMode;
     if (widget.externalState == null) {
       _ownedState = EditorState(
         initialJson: widget.initialJson,
@@ -95,20 +114,25 @@ class _JsonEditorWidgetState extends State<JsonEditorWidget> {
   @override
   Widget build(BuildContext context) {
     final state = widget.externalState ?? _ownedState!;
+    final style = _effectiveStyle;
     return ChangeNotifierProvider.value(
       value: state,
       child: SplitView(
         key: _splitViewKey,
-        style: widget.style.splitView,
-        left: EditorPanel(style: widget.style.editorPanel),
+        style: style.splitView,
+        left: EditorPanel(style: style.editorPanel),
         right: GraphPanel(
-          style: widget.style.graphPanel,
-          toolbarStyle: widget.style.graphToolbar,
-          edgeStyle: widget.style.edge,
-          nodeCardStyle: widget.style.nodeCard,
-          nodeDetailStyle: widget.style.nodeDetail,
-          addChildDialogStyle: widget.style.addChildDialog,
+          style: style.graphPanel,
+          toolbarStyle: style.graphToolbar,
+          edgeStyle: style.edge,
+          nodeCardStyle: style.nodeCard,
+          nodeDetailStyle: style.nodeDetail,
+          addChildDialogStyle: style.addChildDialog,
           onToggleEditorPanel: () => _splitViewKey.currentState?.toggle(),
+          onToggleTheme: widget.enableThemeToggle
+              ? () => setState(() => _isDark = !_isDark)
+              : null,
+          isDark: _isDark,
           extraActions: widget.extraActions,
         ),
       ),

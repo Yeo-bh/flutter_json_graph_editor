@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../models/json_editor_style.dart';
+import '../models/style/json_editor_style.dart';
+import '../models/style/json_editor_tab_bar_style.dart';
 import '../state/json_editor_tab_controller.dart';
 import 'graph_toolbar/graph_toolbar.dart';
 import 'json_editor_widget.dart';
@@ -9,12 +10,25 @@ import 'json_editor_tab/tab_bar.dart';
 class JsonEditorTabView extends StatefulWidget {
   final JsonEditorTabController controller;
   final JsonEditorStyle style;
+
+  /// 다크 모드 스타일. null이면 JsonEditorWidget 기본값(JsonEditorThemes.dark) 사용.
+  final JsonEditorStyle? darkStyle;
+
+  /// true면 각 에디터 툴바에 라이트/다크 토글 버튼 표시.
+  final bool enableThemeToggle;
+
+  /// 상단 탭 바 스타일. 다크 UI에는 [JsonEditorThemes.darkTabBar] 사용.
+  final JsonEditorTabBarStyle tabBarStyle;
+
   final List<GraphToolbarAction> extraActions;
 
   JsonEditorTabView({
     super.key,
     required this.controller,
     JsonEditorStyle? style,
+    this.darkStyle,
+    this.enableThemeToggle = true,
+    this.tabBarStyle = const JsonEditorTabBarStyle(),
     this.extraActions = const [],
   }) : style = style ?? JsonEditorStyle();
 
@@ -51,7 +65,7 @@ class _JsonEditorTabViewState extends State<JsonEditorTabView> {
     final ctrl = widget.controller;
     return Column(
       children: [
-        JsonEditorTabBar(controller: ctrl),
+        JsonEditorTabBar(controller: ctrl, style: widget.tabBarStyle),
         Expanded(
           child: IndexedStack(
             index: ctrl.activeIndex,
@@ -63,6 +77,8 @@ class _JsonEditorTabViewState extends State<JsonEditorTabView> {
                   child: JsonEditorWidget(
                     key: ValueKey('editor_${tab.id}'),
                     style: widget.style,
+                    darkStyle: widget.darkStyle,
+                    enableThemeToggle: widget.enableThemeToggle,
                     extraActions: widget.extraActions,
                     externalState: ctrl.stateFor(tab.id),
                   ),

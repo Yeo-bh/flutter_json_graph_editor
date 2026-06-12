@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import '../../models/style/add_child_dialog_style.dart';
 import '../../models/json_node.dart';
-import '../../models/node_detail_style.dart';
+import '../../models/style/node_detail_style.dart';
 import '../../state/editor_state.dart';
-import '../../utils/json_value_parser.dart';
+import '../../core/utils/json_value_parser.dart';
 import '../shared/confirm_dialog.dart';
 import 'add_entry_dialog.dart';
 import 'node_entry_tile.dart';
@@ -15,6 +16,7 @@ class NodeSidePanelBody extends StatefulWidget {
   final List<String> nodePath;
   final EditorState state;
   final NodeDetailStyle style;
+  final AddChildDialogStyle addChildDialogStyle;
 
   const NodeSidePanelBody({
     super.key,
@@ -22,6 +24,7 @@ class NodeSidePanelBody extends StatefulWidget {
     required this.nodePath,
     required this.state,
     required this.style,
+    this.addChildDialogStyle = const AddChildDialogStyle(),
   });
 
   @override
@@ -96,12 +99,19 @@ class _NodeSidePanelBodyState extends State<NodeSidePanelBody> {
   }
 
   Future<void> _confirmDeleteEntry(NodeEntry entry) async {
+    final s = widget.style;
     final confirmed = await ConfirmDialog.show(
       context,
       title: '"${entry.key}" 삭제',
       message: '이 항목을 삭제하시겠습니까?',
       confirmText: '삭제',
       isDestructive: true,
+      backgroundColor: s.backgroundColor,
+      titleColor: s.titleColor,
+      messageColor: s.metaLabelColor,
+      cancelTextColor: s.metaLabelColor,
+      confirmColor: s.headerBadgeTextColor,
+      destructiveColor: s.deleteIconColor,
     );
     if (confirmed) {
       widget.state.deleteEntry(widget.nodePath, entry.navigationKey);
@@ -115,6 +125,7 @@ class _NodeSidePanelBodyState extends State<NodeSidePanelBody> {
         parentNode: widget.node,
         nodePath: widget.nodePath,
         state: widget.state,
+        style: widget.addChildDialogStyle,
       ),
     );
   }

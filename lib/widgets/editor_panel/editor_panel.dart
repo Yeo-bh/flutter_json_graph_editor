@@ -3,10 +3,10 @@ import 'package:provider/provider.dart';
 import 'package:re_editor/re_editor.dart';
 import 'package:re_highlight/languages/json.dart';
 import 'package:re_highlight/styles/atom-one-light.dart';
-import '../../models/editor_panel_style.dart';
+import '../../models/style/editor_panel_style.dart';
 import '../../state/editor_state.dart';
-import '../../utils/json_line_finder.dart';
-import '../../utils/json_parser.dart';
+import '../../core/utils/json_line_finder.dart';
+import '../../core/utils/json_parser.dart';
 import 'editor_toolbar.dart';
 
 // 화면 좌측 패널: 라인 번호 + 문법 강조 JSON 에디터

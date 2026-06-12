@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../models/json_node.dart';
-import '../models/node_card_style.dart';
+import '../../models/json_node.dart';
+import '../../models/style/node_card_style.dart';
 
 // 노드 간 간격 상수 (카드 스타일과 무관한 레이아웃 전용 값)
 const double kHGap = 100.0; // 부모-자식 카드 사이 가로 간격
