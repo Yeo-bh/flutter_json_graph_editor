@@ -32,7 +32,11 @@ JsonNode? _parseValue(dynamic value, String label, List<String> path) {
 }
 
 // Object 파싱: primitive 값은 entries에, 중첩 object/array는 children에 분리
-JsonNode _parseObject(Map<String, dynamic> obj, String label, List<String> path) {
+JsonNode _parseObject(
+  Map<String, dynamic> obj,
+  String label,
+  List<String> path,
+) {
   final entries = <NodeEntry>[];
   final children = <JsonNode>[];
 
@@ -101,16 +105,46 @@ final _iso8601 = RegExp(r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}');
 // 값을 NodeEntry로 변환 (타입 판별 + 표시 문자열 생성)
 NodeEntry _makeEntry(String key, String navigationKey, dynamic value) {
   if (value == null) {
-    return NodeEntry(key: key, navigationKey: navigationKey, displayValue: 'null', type: EntryType.nullValue);
+    return NodeEntry(
+      key: key,
+      navigationKey: navigationKey,
+      displayValue: 'null',
+      type: EntryType.nullValue,
+    );
   } else if (value is bool) {
-    return NodeEntry(key: key, navigationKey: navigationKey, displayValue: value.toString(), type: EntryType.boolean);
+    return NodeEntry(
+      key: key,
+      navigationKey: navigationKey,
+      displayValue: value.toString(),
+      type: EntryType.boolean,
+    );
   } else if (value is int) {
-    return NodeEntry(key: key, navigationKey: navigationKey, displayValue: value.toString(), type: EntryType.int64);
+    return NodeEntry(
+      key: key,
+      navigationKey: navigationKey,
+      displayValue: value.toString(),
+      type: EntryType.int64,
+    );
   } else if (value is double) {
-    return NodeEntry(key: key, navigationKey: navigationKey, displayValue: value.toString(), type: EntryType.double_);
+    return NodeEntry(
+      key: key,
+      navigationKey: navigationKey,
+      displayValue: value.toString(),
+      type: EntryType.double_,
+    );
   } else if (value is String && _iso8601.hasMatch(value)) {
-    return NodeEntry(key: key, navigationKey: navigationKey, displayValue: '"$value"', type: EntryType.timestamp);
+    return NodeEntry(
+      key: key,
+      navigationKey: navigationKey,
+      displayValue: '"$value"',
+      type: EntryType.timestamp,
+    );
   } else {
-    return NodeEntry(key: key, navigationKey: navigationKey, displayValue: '"$value"', type: EntryType.string);
+    return NodeEntry(
+      key: key,
+      navigationKey: navigationKey,
+      displayValue: '"$value"',
+      type: EntryType.string,
+    );
   }
 }
