@@ -101,8 +101,10 @@ NodeEntry _makeEntry(String key, String navigationKey, dynamic value) {
     return NodeEntry(key: key, navigationKey: navigationKey, displayValue: 'null', type: EntryType.nullValue);
   } else if (value is bool) {
     return NodeEntry(key: key, navigationKey: navigationKey, displayValue: value.toString(), type: EntryType.boolean);
-  } else if (value is num) {
-    return NodeEntry(key: key, navigationKey: navigationKey, displayValue: value.toString(), type: EntryType.number);
+  } else if (value is int) {
+    return NodeEntry(key: key, navigationKey: navigationKey, displayValue: value.toString(), type: EntryType.int64);
+  } else if (value is double) {
+    return NodeEntry(key: key, navigationKey: navigationKey, displayValue: value.toString(), type: EntryType.double_);
   } else {
     return NodeEntry(key: key, navigationKey: navigationKey, displayValue: '"$value"', type: EntryType.string);
   }

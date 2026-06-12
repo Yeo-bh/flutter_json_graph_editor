@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 
-// 노드 안에 표시되는 값의 타입 (문자열/숫자/불리언/null)
-enum EntryType { string, number, boolean, nullValue }
+enum EntryType { string, int64, double_, boolean, timestamp, nullValue }
 
 extension EntryTypeLabel on EntryType {
   String get label => switch (this) {
     EntryType.string => 'String',
-    EntryType.number => 'Number',
+    EntryType.int64 => 'Int64',
+    EntryType.double_ => 'Double',
     EntryType.boolean => 'Boolean',
+    EntryType.timestamp => 'Timestamp',
     EntryType.nullValue => 'Null',
   };
 }

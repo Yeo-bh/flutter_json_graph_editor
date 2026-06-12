@@ -15,8 +15,10 @@ dynamic parseJsonInput(String input) {
 dynamic coerceToType(String input, EntryType type) {
   return switch (type) {
     EntryType.string => input,
-    EntryType.number => num.tryParse(input) ?? 0,
+    EntryType.int64 => int.tryParse(input) ?? 0,
+    EntryType.double_ => double.tryParse(input) ?? 0.0,
     EntryType.boolean => input.trim().toLowerCase() == 'true',
+    EntryType.timestamp => input,
     EntryType.nullValue => null,
   };
 }

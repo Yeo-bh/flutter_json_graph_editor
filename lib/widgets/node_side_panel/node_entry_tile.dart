@@ -45,8 +45,10 @@ class NodeEntryTile extends StatelessWidget {
 
     final Color valueColor = switch (entry.type) {
       EntryType.string => s.stringValueColor,
-      EntryType.number => s.numberValueColor,
+      EntryType.int64 => s.numberValueColor,
+      EntryType.double_ => s.numberValueColor,
       EntryType.boolean => s.booleanValueColor,
+      EntryType.timestamp => s.stringValueColor,
       EntryType.nullValue => s.nullValueColor,
     };
 
@@ -204,6 +206,7 @@ class NodeEntryTile extends StatelessWidget {
                           side: BorderSide(color: s.dividerColor),
                         ),
                         itemBuilder: (_) => EntryType.values
+                            .where((t) => t != EntryType.nullValue)
                             .map(
                               (t) => PopupMenuItem<EntryType>(
                                 value: t,

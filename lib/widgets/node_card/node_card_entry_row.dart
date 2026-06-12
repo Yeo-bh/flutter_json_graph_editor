@@ -64,11 +64,12 @@ class NodeCardEntryRow extends StatelessWidget {
     );
   }
 
-  // 타입별 값 색상: string=초록, number=파랑, boolean=노랑, null=회색
   Color _valueColor(EntryType type) => switch (type) {
     EntryType.string => style.stringValueColor,
-    EntryType.number => style.numberValueColor,
+    EntryType.int64 => style.numberValueColor,
+    EntryType.double_ => style.numberValueColor,
     EntryType.boolean => style.booleanValueColor,
+    EntryType.timestamp => style.stringValueColor,
     EntryType.nullValue => style.nullValueColor,
   };
 }
